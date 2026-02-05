@@ -4,4 +4,12 @@
     <loc>https://aou-gpa-calculator.github.io/</loc>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://aou-gpa-calculator.github.io/current-gpa.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://aou-gpa-calculator.github.io/expected-gpa.html</loc>
+    <priority>0.8</priority>
+  </url>
 </urlset>
