@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-theme="dark">
 <head>
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-27TWHVPD6B"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -11,16 +12,26 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>AOU GPA Calculator</title>
+
+  <!-- ✅ SEO (Important for indexing) -->
+  <meta name="description" content="AOU GPA Calculator for Arab Open University students. Calculate Semester GPA and forecast Cumulative GPA using AOU grading scale. حاسبة معدل الجامعة العربية المفتوحة لحساب المعدل الفصلي والتراكمي." />
+  <link rel="canonical" href="https://aou-gpa-calculator.github.io/" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+
+  <!-- Theme / PWA -->
   <meta name="theme-color" content="#061b2c">
   <link rel="manifest" href="manifest.json">
 
+  <!-- Open Graph -->
   <meta property="og:title" content="AOU GPA Calculator - حاسبة معدل الجامعة العربية المفتوحة" />
   <meta property="og:description" content="أداة لحساب وتوقع المعدل التراكمي والفصلي بدقة لطلاب AOU. مشروع تخرج بإشراف كلية دراسات الحاسوب." />
   <meta property="og:image" content="https://aou-gpa-calculator.github.io/og-image.png" />
   <meta property="og:url" content="https://aou-gpa-calculator.github.io/" />
   <meta property="og:type" content="website" />
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -181,10 +192,23 @@
     .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; display:flex; align-items:center; justify-content:center; padding:20px; }
     .modal-box { background:var(--bg1); padding:30px; border-radius:20px; max-width:400px; text-align:center; border:1px solid var(--border); }
     .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--ok); color: #000; padding: 10px 24px; border-radius: 30px; font-weight: 800; z-index: 1000; display: none; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+    /* ✅ SEO hidden text section (indexing helper) */
+    .seo-text {
+      position:absolute; left:-9999px; top:auto;
+      width:1px; height:1px; overflow:hidden;
+    }
   </style>
 </head>
 
 <body>
+  <!-- ✅ SEO TEXT (Static for Google, does not affect UI) -->
+  <section class="seo-text">
+    <h1>AOU GPA Calculator</h1>
+    <p>AOU GPA Calculator is a free tool for Arab Open University students to calculate Semester GPA and forecast Cumulative GPA using the AOU grading scale.</p>
+    <p>حاسبة معدل الجامعة العربية المفتوحة: أداة مجانية لحساب المعدل الفصلي وتوقع المعدل التراكمي حسب سلم الدرجات الخاص بجامعة AOU.</p>
+  </section>
+
   <div class="modal" id="disclaimerModal">
     <div class="modal-box">
       <h2 style="color:var(--gold); margin-top:0;">⚠️ Disclaimer</h2>
@@ -637,7 +661,6 @@ function updateAdvisingBox(cgpa, completedHours){
   // warning rule: after 12 hours, CGPA < 2, end of any semester except summer
   const warningApplies = (!isSummer && completedHours >= 12 && cgpa < 2.00);
 
-  // source line (always shown in advisory)
   const sourceLine = (LANG==="ar")
     ? `حسب دليل الطالب – الجامعة العربية المفتوحة <span style="opacity:.75;">(إرشادي فقط)</span>`
     : `According to AOU Student Guide <span style="opacity:.75;">(Guidance Only)</span>`;
@@ -660,7 +683,6 @@ function updateAdvisingBox(cgpa, completedHours){
           </div>
         `;
     } else {
-      // Summer OR < 12 hours: hide warning line only, keep not eligible to graduate
       const note = isSummer
         ? (LANG==="ar" ? "ملاحظة: فصل صيفي — لا يظهر سطر الإنذار." : "Note: Summer semester — warning line is hidden.")
         : (LANG==="ar" ? "ملاحظة: الإنذار يطبق بعد إنجاز 12 ساعة أو أكثر (وبنهاية أي فصل ما عدا الصيفي)." : "Note: Warning applies after completing 12+ credit hours (except summer).");
