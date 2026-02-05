@@ -6,7 +6,6 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-27TWHVPD6B');
   </script>
 
@@ -21,6 +20,7 @@
   <meta property="og:image" content="https://aou-gpa-calculator.github.io/og-image.png" />
   <meta property="og:url" content="https://aou-gpa-calculator.github.io/" />
   <meta property="og:type" content="website" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -45,60 +45,55 @@
       --text:#0b1220; --muted: rgba(11,18,32,.65);
       --input-bg: #f0f2f5;
     }
-    
+
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "Cairo", sans-serif; background: linear-gradient(180deg, var(--bg1), var(--bg2)); color: var(--text); min-height: 100vh; padding-bottom: 60px; }
     .wrap { max-width: 950px; margin: 20px auto; padding: 0 16px; }
-    
-    /* --- Top Bar (Clickable Logo) --- */
+
     .topbar { display:flex; flex-direction: column; align-items:center; justify-content: center; margin-bottom: 25px; gap: 15px; }
-    
-    /* جعل الشعار قابلاً للضغط لعمل رفرش */
     .brand { display: flex; align-items: center; gap: 15px; justify-content: center; cursor: pointer; transition: transform 0.2s; }
     .brand:active { transform: scale(0.95); opacity: 0.8; }
-    
     .brand img { height: 60px; width: auto; object-fit: contain; }
     .brand-text { text-align: left; }
     html[dir="rtl"] .brand-text { text-align: right; }
     .brand-text h1 { margin:0; font-size:24px; font-weight:900; line-height: 1.1; color: var(--text); }
     .brand-text p { margin:0; font-size:12px; color:var(--muted); font-weight: 600; }
-    
+
     .btn { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; font-weight: 700; font-size:13px; transition:.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     #btnInstall { display: none; background: var(--text); color: var(--bg1); border-color: var(--text); }
 
-    /* Tabs */
     .mainTabs { display:flex; justify-content:center; gap:10px; margin-bottom:20px; }
     .tab { background:transparent; border:1px solid var(--border); padding:10px 30px; border-radius:12px; color:var(--muted); font-weight:700; cursor:pointer; flex: 1; max-width: 200px; transition: .2s; }
     .tab.active { background:rgba(246,177,0,0.15); color:var(--gold); border-color:var(--gold); }
-    
+
     .panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-    
-    /* Mode Switch */
+
     .modeSwitch { display:flex; gap:10px; margin-bottom:25px; background:rgba(0,0,0,0.2); padding:5px; border-radius:12px; }
     .modeBtn { flex:1; padding:12px; border-radius:10px; border:none; background:transparent; color:var(--muted); font-weight:800; cursor:pointer; transition: .2s; }
     .modeBtn.active { background:var(--card-bg); color:var(--text); box-shadow:0 4px 15px rgba(0,0,0,0.1); }
-    
-    /* Inputs */
+
     .input-group { margin-bottom: 5px; }
     .fixed-label { display: block; font-size: 13px; font-weight: 800; color: var(--gold); margin-bottom: 8px; text-align: left; }
     html[dir="rtl"] .fixed-label { text-align: right; }
 
-    input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); text-align: center; font-weight: 700; outline: none; font-size:16px; transition: all 0.2s; appearance: none; }
+    input, select {
+      width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--input-bg); color: var(--text); text-align: center;
+      font-weight: 700; outline: none; font-size:16px; transition: all 0.2s; appearance: none;
+    }
     input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(246,177,0,0.2); }
     input.code-input { text-transform: uppercase; font-family: var(--mono); }
-    
-    /* تنسيق الخطأ (أحمر واضح) */
-    .input-error { 
-        border: 2px solid var(--danger) !important; 
-        background: rgba(255, 91, 91, 0.1) !important;
-        color: var(--danger) !important;
-        box-shadow: 0 0 0 4px rgba(255, 91, 91, 0.1); 
-        animation: shake 0.3s; 
+
+    .input-error {
+      border: 2px solid var(--danger) !important;
+      background: rgba(255, 91, 91, 0.1) !important;
+      color: var(--danger) !important;
+      box-shadow: 0 0 0 4px rgba(255, 91, 91, 0.1);
+      animation: shake 0.3s;
     }
     @keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(5px)} 50%{transform:translateX(-5px)} 75%{transform:translateX(5px)} 100%{transform:translateX(0)} }
 
-    /* --- Grade Preview Badge --- */
     .cell-grade { position: relative; padding-bottom: 20px; }
     .grade-preview { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 900; padding: 2px 10px; border-radius: 20px; background: rgba(0,0,0,0.3); border: 1px solid transparent; white-space: nowrap; opacity: 0; transition: all 0.2s; pointer-events: none; z-index: 10; }
     .grade-preview.show { opacity: 1; bottom: 0; }
@@ -107,42 +102,41 @@
     .grade-preview.warn { color: #ff9f43; border-color: rgba(255,159,67,0.3); }
     .grade-preview.bad { color: var(--danger); border-color: rgba(255,91,91,0.3); }
 
-    /* --- GRID SYSTEM --- */
     .thead { display: grid; grid-template-columns: 1.5fr 1fr 1fr 100px 60px; gap: 15px; padding: 0 10px 15px; border-bottom: 1px solid var(--border); margin-bottom: 10px; font-size: 13px; font-weight: 800; color: var(--muted); text-align: center; }
     .trow { display: grid; grid-template-columns: 1.5fr 1fr 1fr 100px 60px; gap: 15px; align-items: start; padding: 15px 0; border-bottom: 1px solid var(--border); animation: fadeIn 0.3s ease-out; }
     @keyframes fadeIn { from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
 
     @media (min-width: 769px) {
-        .mobile-wrapper { display: contents; } 
-        .cell-code { order: 1; }
-        .cell-hours { order: 2; }
-        .cell-grade { order: 3; }
-        .cell-status { order: 4; }
-        .cell-del { order: 5; }
-        .mobile-label { display: none !important; }
+      .mobile-wrapper { display: contents; }
+      .cell-code { order: 1; }
+      .cell-hours { order: 2; }
+      .cell-grade { order: 3; }
+      .cell-status { order: 4; }
+      .cell-del { order: 5; }
+      .mobile-label { display: none !important; }
     }
+
     .badge { display:flex; align-items:center; justify-content:center; height: 40px; border-radius:10px; font-size:12px; font-weight:800; width:100%; margin-top: 2px;}
     .badge.ok { background:rgba(78,226,154,0.1); color:var(--ok); border:1px solid rgba(78,226,154,0.2); }
     .badge.dup { background:rgba(255,91,91,0.1); color:var(--danger); text-decoration:line-through; opacity:0.8; border:1px solid rgba(255,91,91,0.2); }
+
     .btn-del { width:100%; height:45px; border-radius:12px; border:1px solid rgba(255,91,91,0.3); background:rgba(255,91,91,0.1); color:var(--danger); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; transition:.2s; }
     .btn-del:hover { background:var(--danger); color:#fff; }
 
-    /* --- MOBILE VIEW --- */
-    .mobile-label { display: none; } 
     @media (max-width: 768px) {
-        .thead { display: none !important; }
-        .trow { display: flex; flex-direction: column; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 20px; gap: 15px; margin-bottom: 15px; }
-        html[data-theme="light"] .trow { background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .mobile-label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 8px; color: var(--gold); text-align: left; }
-        html[dir="rtl"] .mobile-label { text-align: right; }
-        .cell-code { width: 100%; order: 1; }
-        .mobile-wrapper { display: flex; gap: 15px; width: 100%; order: 2; }
-        .cell-half { flex: 1; }
-        .cell-status { width: 100%; order: 3; display: none; }
-        .cell-del { width: 100%; order: 4; margin-top: 5px; }
-        .grade-preview { bottom: 2px; left: auto; right: 15px; transform: none; }
-        html[dir="rtl"] .grade-preview { right: auto; left: 15px; }
-        .brand img { height: 50px; }
+      .thead { display: none !important; }
+      .trow { display: flex; flex-direction: column; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 20px; gap: 15px; margin-bottom: 15px; }
+      html[data-theme="light"] .trow { background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+      .mobile-label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 8px; color: var(--gold); text-align: left; }
+      html[dir="rtl"] .mobile-label { text-align: right; }
+      .cell-code { width: 100%; order: 1; }
+      .mobile-wrapper { display: flex; gap: 15px; width: 100%; order: 2; }
+      .cell-half { flex: 1; }
+      .cell-status { width: 100%; order: 3; display: none; }
+      .cell-del { width: 100%; order: 4; margin-top: 5px; }
+      .grade-preview { bottom: 2px; left: auto; right: 15px; transform: none; }
+      html[dir="rtl"] .grade-preview { right: auto; left: 15px; }
+      .brand img { height: 50px; }
     }
 
     .big-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
@@ -150,15 +144,18 @@
     .btn-block:active { transform: scale(0.98); }
     .btn-yellow { background: linear-gradient(180deg, var(--gold2), var(--gold)); color: #1b1400; box-shadow: 0 4px 20px rgba(246,177,0,0.3); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
     .results-area { text-align: center; margin-top: 35px; padding-top: 25px; border-top: 1px solid var(--border); }
     .res-num { font-size: 64px; font-weight: 900; line-height: 1; margin-bottom: 5px; letter-spacing: -2px; color: var(--text); }
     .res-label { font-size: 14px; color: var(--muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 15px; }
     .res-badge { display: inline-block; padding: 10px 30px; border-radius: 12px; border: 1px solid var(--gold); color: var(--gold); background: rgba(246,177,0,0.1); font-weight: 900; font-size: 14px; }
+
     .hidden { display: none !important; }
-    
+
     .ruleBox { margin: 14px 0 0; border-radius: 16px; border: 1px solid var(--border); background: rgba(255,255,255,.06); padding: 15px; color: var(--muted); font-size: 13px; line-height: 1.6; text-align: center; font-weight: 700; }
     html[data-theme="light"] .ruleBox { background: rgba(255,255,255,.70); }
-    .ruleNote { font-size: 12px; color: var(--danger); margin-top: 8px; display: block; opacity: 0.9; }
+    .ruleNote { font-size: 12px; color: var(--danger); margin-top: 8px; display: block; opacity: 0.95; }
+
     .dupWarning { margin-top:12px; padding:12px; background:rgba(246,177,0,0.1); border:1px solid var(--gold); border-radius:10px; color:var(--gold); font-size:13px; text-align:center; animation: popIn 0.3s; }
     @keyframes popIn { from{transform:scale(0.9); opacity:0;} to{transform:scale(1); opacity:1;} }
 
@@ -171,6 +168,7 @@
     .info-table th { background:var(--blue-header); color:#fff; padding:14px; text-align:center; border-bottom:1px solid var(--border); }
     .info-table td { padding:12px; text-align:center; border-bottom:1px solid var(--border); color:var(--text); background: rgba(255,255,255,0.02); }
     .info-table tr:last-child td { border-bottom:none; }
+
     details { margin-bottom:10px; border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:0.3s; background: rgba(255,255,255,0.02); }
     details[open] { background:rgba(255,255,255,0.05); border-color:var(--gold); }
     summary { padding:15px; cursor:pointer; font-weight:800; list-style:none; display:flex; justify-content:space-between; align-items:center; color: var(--text); }
@@ -186,7 +184,6 @@
 </head>
 
 <body>
-    
   <div class="modal" id="disclaimerModal">
     <div class="modal-box">
       <h2 style="color:var(--gold); margin-top:0;">⚠️ Disclaimer</h2>
@@ -202,8 +199,8 @@
       <div class="brand" onclick="window.location.reload()">
         <img src="aou-logo.png" alt="AOU" onerror="this.src='https://www.aou.edu.kw/images/aou_logo.png'">
         <div class="brand-text">
-            <h1>AOU GPA</h1>
-            <p>Student Calculator</p>
+          <h1>AOU GPA</h1>
+          <p>Student Calculator</p>
         </div>
       </div>
 
@@ -226,23 +223,32 @@
       </div>
 
       <div id="prevData" class="hidden" style="margin-bottom: 20px; border-bottom:1px solid var(--border); padding-bottom:20px;">
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-              <div class="input-group">
-                  <label class="fixed-label" data-i18n="prevGpa">Previous GPA / المعدل السابق</label>
-                  <input type="number" id="prevGpa" step="0.01" placeholder="Ex: 2.85">
-              </div>
-              <div class="input-group">
-                  <label class="fixed-label" data-i18n="prevHours">Completed Hours / الساعات المنجزة</label>
-                  <input type="number" id="prevHours" step="1" placeholder="Ex: 60">
-              </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+          <div class="input-group">
+            <label class="fixed-label" data-i18n="prevGpa">Previous GPA / المعدل السابق</label>
+            <input type="number" id="prevGpa" step="0.01" placeholder="Ex: 2.85">
           </div>
+          <div class="input-group">
+            <label class="fixed-label" data-i18n="prevHours">Completed Hours / الساعات المنجزة</label>
+            <input type="number" id="prevHours" step="1" placeholder="Ex: 60">
+          </div>
+        </div>
+
+        <!-- Summer Term Toggle (Optional) -->
+        <div style="margin-top:14px;">
+          <label class="fixed-label" data-i18n="summerLbl">Is this semester Summer? / هل هذا الفصل صيفي؟</label>
+          <select id="isSummer">
+            <option value="no" selected data-i18n="summerNo">No / لا</option>
+            <option value="yes" data-i18n="summerYes">Yes / نعم</option>
+          </select>
+        </div>
       </div>
 
       <div class="ruleBox">
         <span data-i18n="rule">Retake Rule: Latest attempt counts, previous are Replaced.</span>
         <span class="ruleNote" data-i18n="retakeNote">* Note: According to AOU regulations, retaking a course is not permitted if the previous grade was 'B' or higher.</span>
         <div class="dupWarning" id="dupBox" style="display:none;">
-            ⚠️ <span data-i18n="dupWarning">Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.</span>
+          ⚠️ <span data-i18n="dupWarning">Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.</span>
         </div>
       </div>
 
@@ -257,438 +263,488 @@
       <div id="rowsArea" class="table-container"></div>
 
       <div class="big-actions">
-          <button class="btn-block btn-yellow" onclick="addRow()">+ Add Course / إضافة مادة</button>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-              <button class="btn-block btn-outline" onclick="resetAll()">Reset / مسح</button>
-              <button class="btn-block btn-yellow" onclick="compute()">Calculate / احسب</button>
-          </div>
+        <button class="btn-block btn-yellow" onclick="addRow()">+ Add Course / إضافة مادة</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+          <button class="btn-block btn-outline" onclick="resetAll()">Reset / مسح</button>
+          <button class="btn-block btn-yellow" onclick="compute()">Calculate / احسب</button>
+        </div>
       </div>
 
       <div class="results-area">
-          <div class="res-num" id="semGpa">0.00</div>
-          <div class="res-label" data-lang="semGpa">SEMESTER GPA</div>
-          <div id="semRank" class="res-badge hidden">Excellent</div>
+        <div class="res-num" id="semGpa">0.00</div>
+        <div class="res-label" data-lang="semGpa">SEMESTER GPA</div>
+        <div id="semRank" class="res-badge hidden">Excellent</div>
 
-          <div id="cumBlock" class="hidden" style="margin-top:35px; padding-top:25px; border-top:1px dashed var(--border);">
-              <div class="res-num" id="cumGpa" style="font-size:50px;">0.00</div>
-              <div class="res-label" data-lang="cumGpa">CUMULATIVE GPA</div>
-              <div id="cumRank" class="res-badge hidden">Excellent</div>
-          </div>
+        <div id="cumBlock" class="hidden" style="margin-top:35px; padding-top:25px; border-top:1px dashed var(--border);">
+          <div class="res-num" id="cumGpa" style="font-size:50px;">0.00</div>
+          <div class="res-label" data-lang="cumGpa">CUMULATIVE GPA</div>
+          <div id="cumRank" class="res-badge hidden">Excellent</div>
+
+          <!-- Advising Box -->
+          <div id="advisingBox" class="ruleBox hidden" style="margin-top:18px;"></div>
+        </div>
       </div>
     </div>
 
     <div class="panel hidden" id="panelInfo">
-        <div class="info-header">
-            <h2 data-i18n="infoTitle">Information & Guide</h2>
-        </div>
+      <div class="info-header">
+        <h2 data-i18n="infoTitle">Information & Guide</h2>
+      </div>
 
-        <div class="info-section">
-            <div class="info-title">ℹ️ <span data-i18n="aboutTitle">About</span></div>
-            <div class="info-box">
-               <span data-i18n="aboutText">This tool helps AOU students calculate Semester GPA and forecast Cumulative GPA.</span>
-            </div>
+      <div class="info-section">
+        <div class="info-title">ℹ️ <span data-i18n="aboutTitle">About</span></div>
+        <div class="info-box">
+          <span data-i18n="aboutText">This tool helps AOU students calculate Semester GPA and forecast Cumulative GPA.</span>
         </div>
+      </div>
 
-        <div class="info-section">
-            <div class="info-title">🎓 <span data-i18n="scaleTitle">Grading Scale</span></div>
-            <table class="info-table">
-                <thead>
-                    <tr>
-                        <th data-i18n="percentHead">Percentage</th>
-                        <th data-i18n="pointsHead">Points</th>
-                        <th data-i18n="gradeHead">Grade</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>90-100%</td><td>4.0</td><td>A</td></tr>
-                    <tr><td>82-89%</td><td>3.5</td><td>B+</td></tr>
-                    <tr><td>74-81%</td><td>3.0</td><td>B</td></tr>
-                    <tr><td>66-73%</td><td>2.5</td><td>C+</td></tr>
-                    <tr><td>58-65%</td><td>2.0</td><td>C</td></tr>
-                    <tr><td>50-57%</td><td>1.5</td><td>D</td></tr>
-                    <tr><td>Below 50%</td><td>0.0</td><td>F</td></tr>
-                </tbody>
-            </table>
-        </div>
+      <div class="info-section">
+        <div class="info-title">🎓 <span data-i18n="scaleTitle">Grading Scale</span></div>
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th data-i18n="percentHead">Percentage</th>
+              <th data-i18n="pointsHead">Points</th>
+              <th data-i18n="gradeHead">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>90-100%</td><td>4.0</td><td>A</td></tr>
+            <tr><td>82-89%</td><td>3.5</td><td>B+</td></tr>
+            <tr><td>74-81%</td><td>3.0</td><td>B</td></tr>
+            <tr><td>66-73%</td><td>2.5</td><td>C+</td></tr>
+            <tr><td>58-65%</td><td>2.0</td><td>C</td></tr>
+            <tr><td>50-57%</td><td>1.5</td><td>D</td></tr>
+            <tr><td>Below 50%</td><td>0.0</td><td>F</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-        <div class="info-section">
-            <div class="info-title">🏆 <span data-i18n="ranksTitle">Graduation Ranks & Honors</span></div>
-            <table class="info-table">
-                <thead>
-                    <tr>
-                        <th data-i18n="rankHead">Rank</th>
-                        <th data-i18n="estHead">Estimation</th>
-                        <th data-i18n="cumHead">Cumulative GPA</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>1</td><td data-i18n="est1">Excellent</td><td>3.50 – 4.00</td></tr>
-                    <tr><td>2</td><td data-i18n="est2">Very Good</td><td>2.75 – 3.49</td></tr>
-                    <tr><td>3</td><td data-i18n="est3">Good</td><td>2.00 – 2.74</td></tr>
-                    <tr><td>4</td><td data-i18n="est4">Not Graduated</td><td>&lt; 2.00</td></tr>
-                </tbody>
-            </table>
-        </div>
+      <div class="info-section">
+        <div class="info-title">🏆 <span data-i18n="ranksTitle">Graduation Ranks & Honors</span></div>
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th data-i18n="rankHead">Rank</th>
+              <th data-i18n="estHead">Estimation</th>
+              <th data-i18n="cumHead">Cumulative GPA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td data-i18n="est1">Excellent</td><td>3.50 – 4.00</td></tr>
+            <tr><td>2</td><td data-i18n="est2">Very Good</td><td>2.75 – 3.49</td></tr>
+            <tr><td>3</td><td data-i18n="est3">Good</td><td>2.00 – 2.74</td></tr>
+            <tr><td>4</td><td data-i18n="est4">Not Graduated</td><td>&lt; 2.00</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-        <div class="info-section">
-            <div class="info-title">❓ <span data-i18n="faqTitle">FAQ</span></div>
-            
-            <details>
-                <summary data-i18n="q1">How to use?</summary>
-                <div class="faq-content" data-i18n="a1">Enter your previous GPA/Hours...</div>
-            </details>
-            
-            <details>
-                <summary data-i18n="q2">Retakes?</summary>
-                <div class="faq-content" data-i18n="a2">Duplicate courses are treated as retakes...</div>
-            </details>
-            
-            <details>
-                <summary data-i18n="q3">Official?</summary>
-                <div class="faq-content" data-i18n="a3">No, this is a guidance tool...</div>
-            </details>
-        </div>
+      <div class="info-section">
+        <div class="info-title">📌 <span data-i18n="officialTitle">Official Rules (Student Guide Summary)</span></div>
+
+        <details>
+          <summary data-i18n="warningQ">Academic Warning (Bachelor)</summary>
+          <div class="faq-content" data-i18n="warningA"></div>
+        </details>
+
+        <details>
+          <summary data-i18n="graduationQ">Graduation Requirement (Bachelor)</summary>
+          <div class="faq-content" data-i18n="graduationA"></div>
+        </details>
+
+        <details>
+          <summary data-i18n="failQ">Failing Status Codes</summary>
+          <div class="faq-content" data-i18n="failA"></div>
+        </details>
+      </div>
     </div>
 
     <div class="footer" style="margin-top: 50px; padding-bottom: 20px;">
-        <div style="margin-bottom: 12px; opacity: 0.7;">
-            © <span id="yr"></span> AOU Calculator | Unofficial Student Initiative | <span>v1.6</span>
-        </div>
-        <div style="margin-bottom: 6px;">
-            Designed & Developed by: <strong style="color:var(--text); font-size: 13px;">Eng. Homam Ahmad Shaaban</strong>
-        </div>
-        <div>
-            Under Supervision of the Dean of FCS: <strong style="color:var(--text); font-size: 13px;">Dr. Omar Abdulkader</strong>
-        </div>
+      <div style="margin-bottom: 12px; opacity: 0.7;">
+        © <span id="yr"></span> AOU Calculator | Unofficial Student Initiative | <span>v1.8</span>
+      </div>
+      <div style="margin-bottom: 6px;">
+        Designed & Developed by: <strong style="color:var(--text); font-size: 13px;">Eng. Homam Ahmad Shaaban</strong>
+      </div>
+      <div>
+        Under Supervision of the Dean of FCS: <strong style="color:var(--text); font-size: 13px;">Dr. Omar Abdulkader</strong>
+      </div>
     </div>
   </div>
 
 <script>
 let LANG = 'en';
 let MODE = 'current';
-const STORAGE_KEY = "aou_gpa_v16_final"; 
+const STORAGE_KEY = "aou_gpa_v18_summer";
 
 const TEXT = {
-    en: { 
-        hours: "Credit Hours", grade: "Grade (100)", code: "Course Code", status: "Status", semGpa: "SEMESTER GPA", cumGpa: "CUMULATIVE GPA", counted: "Counted", dup: "Replaced",
-        rule: "Retake Rule: Latest attempt counts, previous are Replaced.",
-        retakeNote: "* Note: According to AOU regulations, retaking a course is not permitted if the previous grade was 'B' or higher.",
-        dupWarning: "Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.",
-        prevGpa: "Previous GPA", prevHours: "Completed Hours",
-        infoTitle: "Information & Guide", aboutTitle: "About", aboutText: "Student tool for GPA calculation.",
-        scaleTitle: "Grading Scale", gradeHead: "Grade", pointsHead: "Points", percentHead: "Percentage",
-        ranksTitle: "Ranks & Honors", rankHead: "Rank", estHead: "Estimation", cumHead: "Cumulative GPA",
-        est1: "Excellent", est2: "Very Good", est3: "Good", est4: "Not Graduated",
-        faqTitle: "FAQ", q1: "How to use?", a1: "Fill details and click Calculate.", q2: "Retakes?", a2: "Latest grade counts.", q3: "Official?", a3: "No, this is a student tool."
-    },
-    ar: { 
-        hours: "عدد الساعات", grade: "الدرجة (من 100)", code: "اسم/كود المادة", status: "الحالة", semGpa: "المعدل الفصلي", cumGpa: "المعدل التراكمي", counted: "محتسب", dup: "مكرر",
-        rule: "قاعدة الإعادة: يُحسب آخر محاولة للمقرر فقط.",
-        retakeNote: "* ملاحظة: حسب لوائح الجامعة، لا يُسمح بإعادة المقرر إذا كانت الدرجة السابقة 'B' أو أعلى.",
-        dupWarning: "تنبيه: أكاديمياً لا يمكنك تسجيل نفس المادة مرتين في نفس الفصل. التكرار هنا لغرض حساب الإعادة فقط.",
-        prevGpa: "المعدل التراكمي السابق", prevHours: "الساعات المنجزة",
-        infoTitle: "معلومات", aboutTitle: "حول الحاسبة", aboutText: "أداة طلابية لحساب المعدل.",
-        scaleTitle: "سلم الدرجات", gradeHead: "الدرجة", pointsHead: "النقاط", percentHead: "النسبة",
-        ranksTitle: "التقديرات", rankHead: "الرتبة", estHead: "التقدير", cumHead: "المعدل التراكمي",
-        est1: "ممتاز", est2: "جيد جداً", est3: "جيد", est4: "لا يتم تخريجه",
-        faqTitle: "الأسئلة الشائعة", q1: "كيف أستخدم الحاسبة؟", a1: "أدخل بياناتك واحسب.", q2: "الإعادة؟", a2: "تحسب الدرجة الأحدث.", q3: "رسمي؟", a3: "لا، أداة طلابية."
-    }
+  en: {
+    hours: "Credit Hours", grade: "Grade (100)", code: "Course Code", status: "Status",
+    semGpa: "SEMESTER GPA", cumGpa: "CUMULATIVE GPA", counted: "Counted", dup: "Replaced",
+    rule: "Retake Rule: Latest attempt counts, previous are Replaced.",
+    retakeNote: "* Note: According to AOU regulations, retaking a course is not permitted if the previous grade was 'B' or higher.",
+    dupWarning: "Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.",
+    prevGpa: "Previous GPA", prevHours: "Completed Hours",
+
+    summerLbl: "Is this semester Summer? / هل هذا الفصل صيفي؟",
+    summerNo: "No / لا",
+    summerYes: "Yes / نعم",
+
+    infoTitle: "Information & Guide",
+    aboutTitle: "About",
+    aboutText: "This tool helps AOU students calculate Semester GPA and forecast Cumulative GPA.",
+    scaleTitle: "Grading Scale",
+    gradeHead: "Grade", pointsHead: "Points", percentHead: "Percentage",
+    ranksTitle: "Graduation Ranks & Honors",
+    rankHead: "Rank", estHead: "Estimation", cumHead: "Cumulative GPA",
+    est1: "Excellent", est2: "Very Good", est3: "Good", est4: "Not Graduated",
+
+    officialTitle: "Official Rules (Student Guide Summary)",
+    warningQ: "Academic Warning (Bachelor)",
+    warningA:
+      "• Warning applies after completing 12 credit hours or more.<br>" +
+      "• If CGPA &lt; 2.00 → warning at the end of any semester (except summer).<br>" +
+      "• Dismissal may occur if warnings reach 5 in 5 consecutive semesters.",
+    graduationQ: "Graduation Requirement (Bachelor)",
+    graduationA:
+      "• Bachelor degree is awarded after passing all courses in the study plan<br>" +
+      "• AND CGPA must be not less than 2.00 out of 4.00.",
+    failQ: "Failing Status Codes",
+    failA:
+      "• FC: Fail in Continuous Assessment (CA) below 30% of CA grade.<br>" +
+      "• FA: Fail due to absenteeism with no excuse.<br>" +
+      "• FF: Fail in Final Exam below 40% of Final grade.<br>" +
+      "• F: Total (CA + Final) below 50%.<br>" +
+      "Note: Fail marks are counted within semester and cumulative GPA."
+  },
+  ar: {
+    hours: "عدد الساعات", grade: "الدرجة (من 100)", code: "اسم/كود المادة", status: "الحالة",
+    semGpa: "المعدل الفصلي", cumGpa: "المعدل التراكمي", counted: "محتسب", dup: "مكرر",
+    rule: "قاعدة الإعادة: يُحسب آخر محاولة للمقرر فقط.",
+    retakeNote: "* ملاحظة: حسب لوائح الجامعة، لا يُسمح بإعادة المقرر إذا كانت الدرجة السابقة 'B' أو أعلى.",
+    dupWarning: "تنبيه: أكاديمياً لا يمكنك تسجيل نفس المادة مرتين في نفس الفصل. التكرار هنا لغرض حساب الإعادة فقط.",
+    prevGpa: "المعدل التراكمي السابق", prevHours: "الساعات المنجزة",
+
+    summerLbl: "هل هذا الفصل صيفي؟",
+    summerNo: "لا (Not Summer)",
+    summerYes: "نعم (Summer)",
+
+    infoTitle: "معلومات",
+    aboutTitle: "حول الحاسبة",
+    aboutText: "هذه الأداة تساعد طلاب AOU على حساب المعدل الفصلي وتوقع المعدل التراكمي.",
+    scaleTitle: "سلم الدرجات",
+    gradeHead: "الدرجة", pointsHead: "النقاط", percentHead: "النسبة",
+    ranksTitle: "التقديرات",
+    rankHead: "الرتبة", estHead: "التقدير", cumHead: "المعدل التراكمي",
+    est1: "ممتاز", est2: "جيد جداً", est3: "جيد", est4: "لا يتم تخريجه",
+
+    officialTitle: "ملخص اللوائح (من دليل الطالب)",
+    warningQ: "الإنذار الأكاديمي (بكالوريوس)",
+    warningA:
+      "• يطبق الإنذار بعد إنجاز 12 ساعة أو أكثر.<br>" +
+      "• إذا CGPA أقل من 2.00 → إنذار بنهاية أي فصل (ما عدا الصيفي).<br>" +
+      "• قد يحدث فصل أكاديمي إذا وصلت الإنذارات 5 في 5 فصول متتالية.",
+    graduationQ: "شرط التخرج (بكالوريوس)",
+    graduationA:
+      "• يُمنح البكالوريوس بعد النجاح في جميع مقررات الخطة<br>" +
+      "• وبشرط ألا يقل CGPA عن 2.00 من 4.00.",
+    failQ: "رموز الرسوب",
+    failA:
+      "• FC: رسوب في أعمال السنة (CA) أقل من 30% من درجة CA.<br>" +
+      "• FA: رسوب بسبب الغياب بدون عذر.<br>" +
+      "• FF: رسوب في النهائي أقل من 40% من درجة النهائي.<br>" +
+      "• F: مجموع (CA + النهائي) أقل من 50%.<br>" +
+      "ملاحظة: الرسوب يُحتسب في الفصلي والتراكمي."
+  }
 };
 
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(TEXT[LANG][key]) el.innerHTML = TEXT[LANG][key];
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('yr').textContent = new Date().getFullYear();
-    if(!localStorage.getItem('theme')) localStorage.setItem('theme', 'dark');
-    applyTheme(localStorage.getItem('theme'));
-    restoreState();
-    window.addEventListener("beforeunload", () => { saveState(); }); // Save on exit
-    
-    let deferredPrompt;
-    const btnInstall = document.getElementById('btnInstall');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e; btnInstall.style.display = 'inline-flex';
-    });
-    btnInstall.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null; 
-        }
-    });
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  if(!localStorage.getItem('theme')) localStorage.setItem('theme', 'dark');
+  applyTheme(localStorage.getItem('theme'));
+  restoreState();
+  applyI18n();
+
+  window.addEventListener("beforeunload", () => { saveState(); });
+
+  let deferredPrompt;
+  const btnInstall = document.getElementById('btnInstall');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); deferredPrompt = e; btnInstall.style.display = 'inline-flex';
+  });
+  btnInstall.addEventListener('click', async () => {
+    if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+  });
+
+  // summer change
+  const summerSel = document.getElementById("isSummer");
+  if(summerSel){
+    summerSel.addEventListener("change", () => { saveState(); compute(); });
+  }
 });
 
 function rowTemplate(data = {}){
-    const code = data.code ?? "";
-    const score = (data.score ?? "") === "" ? "" : String(data.score);
-    const hours = data.hours ? String(data.hours) : "3"; 
+  const code = data.code ?? "";
+  const score = (data.score ?? "") === "" ? "" : String(data.score);
+  const hours = data.hours ? String(data.hours) : "3";
 
-    const div = document.createElement('div');
-    div.className = 'trow';
-    div.innerHTML = `
-        <div class="cell-del">
-            <button class="btn-del" onclick="removeRow(this)">✕</button>
-        </div>
-        
-        <div class="mobile-wrapper">
-             <div class="cell-half cell-hours">
-                <span class="mobile-label">${LANG==='ar'?'الساعات (Hours)':'Credit Hours'}</span>
-                <select data-act="hours">
-                    <option value="3" ${hours==='3'?'selected':''}>3</option>
-                    <option value="4" ${hours==='4'?'selected':''}>4</option>
-                    <option value="8" ${hours==='8'?'selected':''}>8</option>
-                </select>
-             </div>
-             <div class="cell-half cell-grade">
-                <span class="mobile-label">${LANG==='ar'?'الدرجة (Grade)':'Grade (100)'}</span>
-                <input type="text" inputmode="decimal" data-act="score" placeholder="88" value="${score}">
-                <span class="grade-preview"></span>
-             </div>
-        </div>
-        
-        <div class="cell-code">
-            <span class="mobile-label">${LANG==='ar'?'اسم المادة (Code)':'Course Code'}</span>
-            <input type="text" data-act="code" class="code-input" placeholder="GR101" value="${code}">
-        </div>
-        
-        <div class="cell-status">
-            <span class="badge ok" data-act="status">---</span>
-        </div>
-    `;
-    
-    const scoreInput = div.querySelector('[data-act="score"]');
-    const codeInput = div.querySelector('[data-act="code"]');
-    const selectHrs = div.querySelector('[data-act="hours"]');
-    
-    // Live validation logic
-    scoreInput.addEventListener('input', function(){ 
-        validateRow(div); 
-        updatePreview(this); 
-        saveState(); 
-    });
+  const div = document.createElement('div');
+  div.className = 'trow';
+  div.innerHTML = `
+    <div class="cell-del"><button class="btn-del" onclick="removeRow(this)">✕</button></div>
+    <div class="mobile-wrapper">
+      <div class="cell-half cell-hours">
+        <span class="mobile-label">${LANG==='ar'?'الساعات (Hours)':'Credit Hours'}</span>
+        <select data-act="hours">
+          <option value="3" ${hours==='3'?'selected':''}>3</option>
+          <option value="4" ${hours==='4'?'selected':''}>4</option>
+          <option value="8" ${hours==='8'?'selected':''}>8</option>
+        </select>
+      </div>
+      <div class="cell-half cell-grade">
+        <span class="mobile-label">${LANG==='ar'?'الدرجة (Grade)':'Grade (100)'}</span>
+        <input type="text" inputmode="decimal" data-act="score" placeholder="88" value="${score}">
+        <span class="grade-preview"></span>
+      </div>
+    </div>
+    <div class="cell-code">
+      <span class="mobile-label">${LANG==='ar'?'اسم المادة (Code)':'Course Code'}</span>
+      <input type="text" data-act="code" class="code-input" placeholder="GR101" value="${code}">
+    </div>
+    <div class="cell-status"><span class="badge ok" data-act="status">---</span></div>
+  `;
 
-    codeInput.addEventListener('input', function(){ validateRow(div); saveState(); });
-    selectHrs.addEventListener('change', function(){ saveState(); });
+  const scoreInput = div.querySelector('[data-act="score"]');
+  const codeInput  = div.querySelector('[data-act="code"]');
+  const selectHrs  = div.querySelector('[data-act="hours"]');
 
-    if(score) updatePreview(scoreInput);
-    if(code || score) validateRow(div);
+  scoreInput.addEventListener('input', function(){
+    validateRow(div);
+    updatePreview(this);
+    saveState();
+  });
 
-    return div;
+  codeInput.addEventListener('input', function(){ validateRow(div); saveState(); });
+  selectHrs.addEventListener('change', function(){ saveState(); });
+
+  if(score) updatePreview(scoreInput);
+  if(code || score) validateRow(div);
+
+  return div;
 }
 
 function validateRow(row){
-    const scoreInp = row.querySelector('[data-act="score"]');
-    const val = scoreInp.value;
-
-    // IF EMPTY: No error (neutral)
-    if(val.trim() === ""){
-        scoreInp.classList.remove('input-error');
-        return;
-    }
-
-    // IF NOT A NUMBER OR OUT OF BOUNDS
-    const num = parseFloat(val);
-    if(isNaN(num) || num < 0 || num > 100){
-        scoreInp.classList.add('input-error');
-    } else {
-        scoreInp.classList.remove('input-error');
-    }
+  const scoreInp = row.querySelector('[data-act="score"]');
+  const val = scoreInp.value;
+  if(val.trim() === ""){
+    scoreInp.classList.remove('input-error');
+    return;
+  }
+  const num = parseFloat(val);
+  if(isNaN(num) || num < 0 || num > 100) scoreInp.classList.add('input-error');
+  else scoreInp.classList.remove('input-error');
 }
 
 function updatePreview(input){
-    const previewEl = input.nextElementSibling; 
-    const valStr = input.value;
-    const val = parseFloat(valStr);
-    
-    // Clear preview if invalid or empty
-    if(valStr.trim() === "" || isNaN(val) || val > 100 || val < 0){
-        previewEl.textContent = ""; 
-        previewEl.classList.remove('show'); 
-        return;
-    }
-
-    previewEl.className = 'grade-preview show';
-    const result = getGradeInfo(val);
-    previewEl.textContent = `${result.letter} | ${result.points.toFixed(2)}`;
-    
-    if(result.points >= 3.5) previewEl.classList.add('excellent'); 
-    else if (result.points >= 2.0) previewEl.classList.add('good');      
-    else if (result.points >= 1.5) previewEl.classList.add('warn');      
-    else previewEl.classList.add('bad');        
+  const previewEl = input.nextElementSibling;
+  const valStr = input.value;
+  const val = parseFloat(valStr);
+  if(valStr.trim() === "" || isNaN(val) || val > 100 || val < 0){
+    previewEl.textContent = "";
+    previewEl.classList.remove('show');
+    return;
+  }
+  previewEl.className = 'grade-preview show';
+  const result = getGradeInfo(val);
+  previewEl.textContent = `${result.letter} | ${result.points.toFixed(2)}`;
+  if(result.points >= 3.5) previewEl.classList.add('excellent');
+  else if (result.points >= 2.0) previewEl.classList.add('good');
+  else if (result.points >= 1.5) previewEl.classList.add('warn');
+  else previewEl.classList.add('bad');
 }
 
 function getGradeInfo(score){
-    if (score >= 90) return { points: 4.0, letter: 'A' };
-    if (score >= 82) return { points: 3.5, letter: 'B+' };
-    if (score >= 74) return { points: 3.0, letter: 'B' };
-    if (score >= 66) return { points: 2.5, letter: 'C+' };
-    if (score >= 58) return { points: 2.0, letter: 'C' };
-    if (score >= 50) return { points: 1.5, letter: 'D' };
-    return { points: 0.0, letter: 'F' };
+  if (score >= 90) return { points: 4.0, letter: 'A' };
+  if (score >= 82) return { points: 3.5, letter: 'B+' };
+  if (score >= 74) return { points: 3.0, letter: 'B' };
+  if (score >= 66) return { points: 2.5, letter: 'C+' };
+  if (score >= 58) return { points: 2.0, letter: 'C' };
+  if (score >= 50) return { points: 1.5, letter: 'D' };
+  return { points: 0.0, letter: 'F' };
 }
 
 function addRow(data){
-    const div = rowTemplate(data);
-    document.getElementById('rowsArea').appendChild(div);
+  document.getElementById('rowsArea').appendChild(rowTemplate(data));
 }
-
 function removeRow(btn){
-    btn.parentElement.parentElement.remove();
-    if(document.getElementById('rowsArea').children.length === 0) addRow();
-    saveState();
-    compute();
-}
-
-function compute(){
-    const rows = Array.from(document.getElementById('rowsArea').children);
-    const parsed = rows.map((row, idx) => {
-        validateRow(row);
-        const codeVal = row.querySelector('[data-act="code"]').value.trim().toUpperCase();
-        const scoreInp = row.querySelector('[data-act="score"]');
-        let scoreVal = parseFloat(scoreInp.value);
-        const hoursVal = parseFloat(row.querySelector('[data-act="hours"]').value);
-        
-        if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) scoreVal = NaN;
-        return { idx, row, code: codeVal, score: scoreVal, hours: hoursVal };
-    });
-
-    const lastSeen = new Map();
-    parsed.forEach(p => { if(p.code) lastSeen.set(p.code, p.idx); });
-
-    let totalPts = 0; let totalHrs = 0; let hasDuplicate = false;
-
-    parsed.forEach(p => {
-        const statusEl = p.row.querySelector('[data-act="status"]');
-        if(isNaN(p.score) || isNaN(p.hours)){
-            statusEl.textContent = '---'; statusEl.className='badge'; return;
-        }
-        
-        let isLatest = true;
-        if(p.code) {
-             isLatest = lastSeen.get(p.code) === p.idx;
-             if(!isLatest) hasDuplicate = true;
-        }
-
-        if(isLatest){
-            const gp = getGradeInfo(p.score).points;
-            totalHrs += p.hours;
-            totalPts += (gp * p.hours);
-            statusEl.textContent = (LANG==='ar' ? TEXT.ar.counted : TEXT.en.counted);
-            statusEl.className = 'badge ok';
-        } else {
-            statusEl.textContent = (LANG==='ar' ? TEXT.ar.dup : TEXT.en.dup);
-            statusEl.className = 'badge dup';
-        }
-    });
-
-    const dupBox = document.getElementById('dupBox');
-    if(dupBox) dupBox.style.display = hasDuplicate ? 'block' : 'none';
-
-    const semGpa = totalHrs ? (totalPts / totalHrs) : 0;
-    document.getElementById('semGpa').textContent = semGpa.toFixed(2);
-    showRank('semRank', semGpa);
-    
-    saveState();
-
-    if(MODE === 'expected'){
-        const pG = parseFloat(document.getElementById('prevGpa').value) || 0;
-        const pH = parseFloat(document.getElementById('prevHours').value) || 0;
-        const finalHrs = totalHrs + pH;
-        const finalPts = totalPts + (pG * pH);
-        const cumGpa = finalHrs ? (finalPts / finalHrs) : 0;
-        document.getElementById('cumGpa').textContent = cumGpa.toFixed(2);
-        showRank('cumRank', cumGpa);
-    }
+  btn.parentElement.parentElement.remove();
+  if(document.getElementById('rowsArea').children.length === 0) addRow();
+  saveState(); compute();
 }
 
 function showRank(elId, gpa){
-    const el = document.getElementById(elId);
-    el.classList.remove('hidden');
-    if(gpa >= 3.50) el.textContent = LANG==='ar'?"ممتاز":"Excellent";
-    else if(gpa >= 2.75) el.textContent = LANG==='ar'?"جيد جداً":"Very Good";
-    else if(gpa >= 2.00) el.textContent = LANG==='ar'?"جيد":"Good";
-    else el.textContent = LANG==='ar'?"لا يتم تخريجه":"Not Graduated"; 
+  const el = document.getElementById(elId);
+  el.classList.remove('hidden');
+  if(gpa >= 3.50) el.textContent = LANG==='ar'?"ممتاز":"Excellent";
+  else if(gpa >= 2.75) el.textContent = LANG==='ar'?"جيد جداً":"Very Good";
+  else if(gpa >= 2.00) el.textContent = LANG==='ar'?"جيد":"Good";
+  else el.textContent = LANG==='ar'?"لا يتم تخريجه":"Not Graduated";
+}
+
+function updateAdvisingBox(cgpa, completedHours){
+  const box = document.getElementById("advisingBox");
+  if(!box) return;
+
+  if(MODE !== "expected"){
+    box.classList.add("hidden");
+    return;
+  }
+  box.classList.remove("hidden");
+
+  const isSummer = (document.getElementById("isSummer")?.value === "yes");
+  const notGraduated = (cgpa < 2.00);
+  const warningApplies = (!isSummer && completedHours >= 12 && cgpa < 2.00);
+
+  // Build message
+  if(notGraduated){
+    if(warningApplies){
+      box.innerHTML = (LANG==="ar")
+        ? `⚠️ <strong>إنذار أكاديمي</strong>: CGPA أقل من 2.00 (بعد إنجاز 12 ساعة أو أكثر).<br>
+           ❌ <strong>غير مؤهل للتخرج</strong> (شرط التخرج CGPA ≥ 2.00).<br>
+           <span class="ruleNote">ملاحظة: الإنذار لا يُطبق في الفصل الصيفي.</span>`
+        : `⚠️ <strong>Academic Warning</strong>: CGPA is below 2.00 (after completing 12+ credit hours).<br>
+           ❌ <strong>Not eligible to graduate</strong> (graduation requires CGPA ≥ 2.00).<br>
+           <span class="ruleNote">Note: Warning is not issued in Summer semester.</span>`;
+    } else {
+      // Summer or less than 12 hours: hide warning line, keep not graduated
+      box.innerHTML = (LANG==="ar")
+        ? `❌ <strong>غير مؤهل للتخرج</strong>: CGPA أقل من 2.00 (شرط التخرج CGPA ≥ 2.00).<br>
+           <span class="ruleNote">${isSummer ? "ملاحظة: هذا فصل صيفي، لذلك لا يظهر سطر الإنذار." : "ملاحظة: الإنذار الأكاديمي يطبق بعد إنجاز 12 ساعة أو أكثر (وبنهاية أي فصل ما عدا الصيفي)."}</span>`
+        : `❌ <strong>Not eligible to graduate</strong>: CGPA is below 2.00 (graduation requires CGPA ≥ 2.00).<br>
+           <span class="ruleNote">${isSummer ? "Note: This is Summer semester, so the warning line is hidden." : "Note: Warning applies after completing 12+ credit hours (and is issued at the end of any semester except Summer)."}</span>`;
+    }
+  } else {
+    box.innerHTML = (LANG==="ar")
+      ? `✅ <strong>وضع أكاديمي طبيعي</strong>.<br>
+         🎓 <strong>مؤهل للتخرج</strong> (CGPA ≥ 2.00).`
+      : `✅ <strong>Good Standing</strong>.<br>
+         🎓 <strong>Eligible to graduate</strong> (CGPA ≥ 2.00).`;
+  }
+}
+
+function compute(){
+  const rows = Array.from(document.getElementById('rowsArea').children);
+  const parsed = rows.map((row, idx) => {
+    validateRow(row);
+    const codeVal = row.querySelector('[data-act="code"]').value.trim().toUpperCase();
+    const scoreInp = row.querySelector('[data-act="score"]');
+    let scoreVal = parseFloat(scoreInp.value);
+    const hoursVal = parseFloat(row.querySelector('[data-act="hours"]').value);
+    if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) scoreVal = NaN;
+    return { idx, row, code: codeVal, score: scoreVal, hours: hoursVal };
+  });
+
+  const lastSeen = new Map();
+  parsed.forEach(p => { if(p.code) lastSeen.set(p.code, p.idx); });
+
+  let totalPts = 0, totalHrs = 0, hasDuplicate = false;
+
+  parsed.forEach(p => {
+    const statusEl = p.row.querySelector('[data-act="status"]');
+    if(isNaN(p.score) || isNaN(p.hours)){
+      statusEl.textContent = '---'; statusEl.className='badge'; return;
+    }
+
+    let isLatest = true;
+    if(p.code) {
+      isLatest = lastSeen.get(p.code) === p.idx;
+      if(!isLatest) hasDuplicate = true;
+    }
+
+    if(isLatest){
+      const gp = getGradeInfo(p.score).points;
+      totalHrs += p.hours;
+      totalPts += (gp * p.hours);
+      statusEl.textContent = (LANG==='ar' ? TEXT.ar.counted : TEXT.en.counted);
+      statusEl.className = 'badge ok';
+    } else {
+      statusEl.textContent = (LANG==='ar' ? TEXT.ar.dup : TEXT.en.dup);
+      statusEl.className = 'badge dup';
+    }
+  });
+
+  const dupBox = document.getElementById('dupBox');
+  if(dupBox) dupBox.style.display = hasDuplicate ? 'block' : 'none';
+
+  const semGpa = totalHrs ? (totalPts / totalHrs) : 0;
+  document.getElementById('semGpa').textContent = semGpa.toFixed(2);
+  showRank('semRank', semGpa);
+
+  saveState();
+
+  if(MODE === 'expected'){
+    const pG = parseFloat(document.getElementById('prevGpa').value) || 0;
+    const pH = parseFloat(document.getElementById('prevHours').value) || 0;
+    const finalHrs = totalHrs + pH;
+    const finalPts = totalPts + (pG * pH);
+    const cumGpa = finalHrs ? (finalPts / finalHrs) : 0;
+
+    document.getElementById('cumGpa').textContent = cumGpa.toFixed(2);
+    showRank('cumRank', cumGpa);
+
+    updateAdvisingBox(cumGpa, pH);
+  }
 }
 
 function saveState(){
-    const rows = Array.from(document.getElementById('rowsArea').children).map(row => ({
-        code: row.querySelector('[data-act="code"]').value,
-        score: row.querySelector('[data-act="score"]').value,
-        hours: row.querySelector('[data-act="hours"]').value
-    }));
-    const state = {
-        mode: MODE,
-        prevGpa: document.getElementById('prevGpa').value,
-        prevHours: document.getElementById('prevHours').value,
-        rows: rows
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const rows = Array.from(document.getElementById('rowsArea').children).map(row => ({
+    code: row.querySelector('[data-act="code"]').value,
+    score: row.querySelector('[data-act="score"]').value,
+    hours: row.querySelector('[data-act="hours"]').value
+  }));
+  const state = {
+    mode: MODE,
+    prevGpa: document.getElementById('prevGpa').value,
+    prevHours: document.getElementById('prevHours').value,
+    isSummer: document.getElementById('isSummer')?.value || "no",
+    rows: rows,
+    lang: LANG
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 function restoreState(){
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) { addRow(); return; }
-        const st = JSON.parse(raw);
-        if(st.mode) setMode(st.mode);
-        if(st.prevGpa) document.getElementById('prevGpa').value = st.prevGpa;
-        if(st.prevHours) document.getElementById('prevHours').value = st.prevHours;
-        document.getElementById('rowsArea').innerHTML = '';
-        if(st.rows && st.rows.length > 0) st.rows.forEach(r => addRow(r));
-        else addRow();
-        compute();
-    } catch(e) { addRow(); }
-}
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) { addRow(); return; }
+    const st = JSON.parse(raw);
 
-function resetAll(){
-    if(confirm('Clear all fields?')){
-        document.getElementById('rowsArea').innerHTML = '';
-        addRow();
-        document.getElementById('prevGpa').value = '';
-        document.getElementById('prevHours').value = '';
-        document.getElementById('semGpa').textContent = '0.00';
-        document.getElementById('cumGpa').textContent = '0.00';
-        localStorage.removeItem(STORAGE_KEY); 
-        showToast("Reset Done 🗑️");
+    if(st.lang){
+      LANG = st.lang;
+      document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
     }
-}
 
-function showToast(msg){
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.style.display = 'block';
-    setTimeout(() => t.style.display='none', 1500);
-}
+    if(st.mode) setMode(st.mode);
 
-function toggleTheme(){
-    const current = document.documentElement.getAttribute('data-theme');
-    applyTheme(current === 'dark' ? 'light' : 'dark');
-}
-function applyTheme(t){
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('theme', t);
-}
-
-function setMode(m){
-    MODE = m;
-    document.getElementById('btnCurr').classList.toggle('active', m==='current');
-    document.getElementById('btnExp').classList.toggle('active', m==='expected');
-    if(m==='expected'){
-        document.getElementById('prevData').classList.remove('hidden');
-        document.getElementById('cumBlock').classList.remove('hidden');
-    } else {
-        document.getElementById('prevData').classList.add('hidden');
-        document.getElementById('cumBlock').classList.add('hidden');
+    if(st.prevGpa !== undefined) document.getElementById('prevGpa').value = st.prevGpa;
+    if(st.prevHours !== undefined) document.getElementById('prevHours').value = st.prevHours;
+    if(st.isSummer !== undefined && document.getElementById('isSummer')){
+      document.getElementById('isSummer').value = st.isSummer;
     }
-    saveState(); compute();
-}
 
-function toggleLang(){
-    LANG = (LANG === 'en') ? 'ar' : 'en';
-    document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
-    const els = document.querySelectorAll('[data-i18n]');
-    els.forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if(TEXT[LANG][key]) el.textContent = TEXT[LANG][key];
-    });
-    
+    document.getElementById('rowsArea').innerHTML = '';
+    if(st.rows && st.rows.length > 0) st.rows.forEach(r => addRow(r));
+    else addRow();
+
+    // apply texts after restore
+    applyI18n();
     document.querySelector('[data-lang="hours"]').textContent = TEXT[LANG].hours;
     document.querySelector('[data-lang="grade"]').textContent = TEXT[LANG].grade;
     document.querySelector('[data-lang="code"]').textContent = TEXT[LANG].code;
@@ -696,24 +752,91 @@ function toggleLang(){
     document.querySelector('[data-lang="semGpa"]').textContent = TEXT[LANG].semGpa;
     document.querySelector('[data-lang="cumGpa"]').textContent = TEXT[LANG].cumGpa;
 
-    const rows = document.querySelectorAll('.trow');
-    rows.forEach(row => {
-        row.querySelector('.cell-hours .mobile-label').textContent = LANG==='ar'?'الساعات (Hours)':'Credit Hours';
-        row.querySelector('.cell-grade .mobile-label').textContent = LANG==='ar'?'الدرجة (Grade)':'Grade (100)';
-        row.querySelector('.cell-code .mobile-label').textContent = LANG==='ar'?'اسم المادة (Code)':'Course Code';
-    });
     compute();
+  } catch(e) {
+    addRow();
+  }
+}
+
+function resetAll(){
+  if(confirm('Clear all fields?')){
+    document.getElementById('rowsArea').innerHTML = '';
+    addRow();
+    document.getElementById('prevGpa').value = '';
+    document.getElementById('prevHours').value = '';
+    if(document.getElementById('isSummer')) document.getElementById('isSummer').value = 'no';
+    document.getElementById('semGpa').textContent = '0.00';
+    document.getElementById('cumGpa').textContent = '0.00';
+    localStorage.removeItem(STORAGE_KEY);
+    showToast("Reset Done 🗑️");
+    compute();
+  }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display='none', 1500);
+}
+
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+}
+
+function setMode(m){
+  MODE = m;
+  document.getElementById('btnCurr').classList.toggle('active', m==='current');
+  document.getElementById('btnExp').classList.toggle('active', m==='expected');
+
+  if(m==='expected'){
+    document.getElementById('prevData').classList.remove('hidden');
+    document.getElementById('cumBlock').classList.remove('hidden');
+  } else {
+    document.getElementById('prevData').classList.add('hidden');
+    document.getElementById('cumBlock').classList.add('hidden');
+  }
+  saveState(); compute();
+}
+
+function toggleLang(){
+  LANG = (LANG === 'en') ? 'ar' : 'en';
+  document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
+
+  applyI18n();
+  document.querySelector('[data-lang="hours"]').textContent = TEXT[LANG].hours;
+  document.querySelector('[data-lang="grade"]').textContent = TEXT[LANG].grade;
+  document.querySelector('[data-lang="code"]').textContent = TEXT[LANG].code;
+  document.querySelector('[data-lang="status"]').textContent = TEXT[LANG].status;
+  document.querySelector('[data-lang="semGpa"]').textContent = TEXT[LANG].semGpa;
+  document.querySelector('[data-lang="cumGpa"]').textContent = TEXT[LANG].cumGpa;
+
+  const rows = document.querySelectorAll('.trow');
+  rows.forEach(row => {
+    row.querySelector('.cell-hours .mobile-label').textContent = LANG==='ar'?'الساعات (Hours)':'Credit Hours';
+    row.querySelector('.cell-grade .mobile-label').textContent = LANG==='ar'?'الدرجة (Grade)':'Grade (100)';
+    row.querySelector('.cell-code .mobile-label').textContent = LANG==='ar'?'اسم المادة (Code)':'Course Code';
+  });
+
+  saveState();
+  compute();
 }
 
 function switchTab(t){
-    document.getElementById('panelCalc').classList.toggle('hidden', t!=='calc');
-    document.getElementById('panelInfo').classList.toggle('hidden', t!=='info');
-    document.getElementById('tab1').classList.toggle('active', t==='calc');
-    document.getElementById('tab2').classList.toggle('active', t==='info');
+  document.getElementById('panelCalc').classList.toggle('hidden', t!=='calc');
+  document.getElementById('panelInfo').classList.toggle('hidden', t!=='info');
+  document.getElementById('tab1').classList.toggle('active', t==='calc');
+  document.getElementById('tab2').classList.toggle('active', t==='info');
 }
 
+// live inputs
 document.getElementById('prevGpa').addEventListener('input', () => { saveState(); compute(); });
 document.getElementById('prevHours').addEventListener('input', () => { saveState(); compute(); });
 </script>
 </body>
 </html>
+
