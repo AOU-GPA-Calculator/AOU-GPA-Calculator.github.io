@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-theme="dark">
 <head>
-  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-27TWHVPD6B"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -15,23 +14,19 @@
 
   <title>AOU GPA Calculator</title>
 
-  <!-- ✅ SEO (Important for indexing) -->
   <meta name="description" content="AOU GPA Calculator for Arab Open University students. Calculate Semester GPA and forecast Cumulative GPA using AOU grading scale. حاسبة معدل الجامعة العربية المفتوحة لحساب المعدل الفصلي والتراكمي." />
   <link rel="canonical" href="https://aou-gpa-calculator.github.io/" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
 
-  <!-- Theme / PWA -->
   <meta name="theme-color" content="#061b2c">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Open Graph -->
   <meta property="og:title" content="AOU GPA Calculator - حاسبة معدل الجامعة العربية المفتوحة" />
   <meta property="og:description" content="أداة لحساب وتوقع المعدل التراكمي والفصلي بدقة لطلاب AOU. مشروع تخرج بإشراف كلية دراسات الحاسوب." />
   <meta property="og:image" content="https://aou-gpa-calculator.github.io/og-image.png" />
   <meta property="og:url" content="https://aou-gpa-calculator.github.io/" />
   <meta property="og:type" content="website" />
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -222,7 +217,6 @@
 </head>
 
 <body>
-  <!-- ✅ SEO TEXT (Static for Google, does not affect UI) -->
   <section class="seo-text">
     <h1>AOU GPA Calculator</h1>
     <p>AOU GPA Calculator is a free tool for Arab Open University students to calculate Semester GPA and forecast Cumulative GPA using the AOU grading scale.</p>
@@ -267,7 +261,6 @@
         <button class="modeBtn" id="btnExp" onclick="setMode('expected')">Cumulative / تراكمي</button>
       </div>
 
-      <!-- Summer Term Toggle (Visible always, used only for advisory in CGPA mode) -->
       <div style="margin-bottom:14px;">
         <label class="fixed-label" data-i18n="summerLbl">Is this semester Summer? / هل هذا الفصل صيفي؟</label>
         <select id="isSummer">
@@ -325,7 +318,6 @@
           <div class="res-label" data-lang="cumGpa">CUMULATIVE GPA</div>
           <div id="cumRank" class="res-badge hidden">Excellent</div>
 
-          <!-- Advising Box -->
           <div id="advisingBox" class="ruleBox hidden" style="margin-top:18px;"></div>
         </div>
       </div>
@@ -497,6 +489,7 @@ const TEXT = {
   }
 };
 
+// Translates the static UI elements based on the selected language (English/Arabic).
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -504,6 +497,7 @@ function applyI18n(){
   });
 }
 
+// Initializes the application, sets up event listeners, and restores saved data on page load.
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('yr').textContent = new Date().getFullYear();
   if(!localStorage.getItem('theme')) localStorage.setItem('theme', 'dark');
@@ -528,6 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// Generates and returns a new HTML row element for course entry, attaching real-time validation listeners.
 function rowTemplate(data = {}){
   const code = data.code ?? "";
   const score = (data.score ?? "") === "" ? "" : String(data.score);
@@ -578,6 +573,7 @@ function rowTemplate(data = {}){
   return div;
 }
 
+// Validates the entered score to ensure it is a numerical value between 0 and 100.
 function validateRow(row){
   const scoreInp = row.querySelector('[data-act="score"]');
   const val = scoreInp.value;
@@ -590,6 +586,7 @@ function validateRow(row){
   else scoreInp.classList.remove('input-error');
 }
 
+// Updates the visual badge dynamically to display the corresponding letter grade as the user types.
 function updatePreview(input){
   const previewEl = input.nextElementSibling;
   const valStr = input.value;
@@ -611,6 +608,7 @@ function updatePreview(input){
   else previewEl.classList.add('bad');
 }
 
+// Maps a numerical percentage (0-100) to AOU's official letter grades and GPA points.
 function getGradeInfo(score){
   if (score >= 90) return { points: 4.0, letter: 'A' };
   if (score >= 82) return { points: 3.5, letter: 'B+' };
@@ -621,9 +619,12 @@ function getGradeInfo(score){
   return { points: 0.0, letter: 'F' };
 }
 
+// Appends a newly created course row to the calculation table.
 function addRow(data){
   document.getElementById('rowsArea').appendChild(rowTemplate(data));
 }
+
+// Removes a specific course row from the UI and triggers a recalculation.
 function removeRow(btn){
   btn.parentElement.parentElement.remove();
   if(document.getElementById('rowsArea').children.length === 0) addRow();
@@ -631,9 +632,10 @@ function removeRow(btn){
 }
 
 /**
+ * Evaluates the calculated GPA and displays the student's academic standing or graduation eligibility.
  * type:
- *  - "sem": semester badge (NOT graduation eligibility)
- *  - "cum": cumulative badge (graduation eligibility rules apply)
+ * - "sem": semester badge (NOT graduation eligibility)
+ * - "cum": cumulative badge (graduation eligibility rules apply)
  */
 function showRank(elId, gpa, type){
   const el = document.getElementById(elId);
@@ -665,6 +667,7 @@ function showRank(elId, gpa, type){
   }
 }
 
+// Checks AOU academic rules to determine if the student is under academic warning based on Cumulative GPA.
 function updateAdvisingBox(cgpa, completedHours){
   const box = document.getElementById("advisingBox");
   if(!box) return;
@@ -742,6 +745,7 @@ function updateAdvisingBox(cgpa, completedHours){
   }
 }
 
+// The core mathematical engine: Processes inputs, applies the retake rule, and computes the final GPA.
 function compute(){
   const rows = Array.from(document.getElementById('rowsArea').children);
   const parsed = rows.map((row, idx) => {
@@ -807,6 +811,7 @@ function compute(){
   }
 }
 
+// Saves the current calculator state to the browser's LocalStorage to prevent data loss.
 function saveState(){
   const rows = Array.from(document.getElementById('rowsArea').children).map(row => ({
     code: row.querySelector('[data-act="code"]').value,
@@ -824,6 +829,7 @@ function saveState(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+// Retrieves previously saved state from LocalStorage and reconstructs the user interface.
 function restoreState(){
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -862,6 +868,7 @@ function restoreState(){
   }
 }
 
+// Clears all input fields, resets calculations to zero, and removes data from LocalStorage.
 function resetAll(){
   if(confirm('Clear all fields?')){
     document.getElementById('rowsArea').innerHTML = '';
@@ -877,21 +884,26 @@ function resetAll(){
   }
 }
 
+// Displays a temporary success/notification message on the screen.
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
   setTimeout(() => t.style.display='none', 1500);
 }
 
+// Toggles the application appearance between Dark and Light themes.
 function toggleTheme(){
   const current = document.documentElement.getAttribute('data-theme');
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
+
+// Applies the selected theme to the root HTML document and saves preference.
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme', t);
   localStorage.setItem('theme', t);
 }
 
+// Switches the calculator mode between Semester (Current) and Cumulative (Expected) calculations.
 function setMode(m){
   MODE = m;
   document.getElementById('btnCurr').classList.toggle('active', m==='current');
@@ -907,6 +919,7 @@ function setMode(m){
   saveState(); compute();
 }
 
+// Toggles the application language between English and Arabic, updating UI elements and text direction.
 function toggleLang(){
   LANG = (LANG === 'en') ? 'ar' : 'en';
   document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
@@ -931,6 +944,7 @@ function toggleLang(){
   compute();
 }
 
+// Switches the active view between the Calculator tab and the Information guide tab.
 function switchTab(t){
   document.getElementById('panelCalc').classList.toggle('hidden', t!=='calc');
   document.getElementById('panelInfo').classList.toggle('hidden', t!=='info');
