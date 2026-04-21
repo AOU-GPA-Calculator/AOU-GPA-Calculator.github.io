@@ -55,7 +55,6 @@
 
     * { box-sizing: border-box; }
 
-    /* ✅ FIX #1: prevent horizontal overflow (RTL safe) */
     html, body { overflow-x: hidden; }
 
     body {
@@ -100,7 +99,10 @@
       width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border);
       background: var(--input-bg); color: var(--text); text-align: center;
       font-weight: 700; outline: none; font-size:16px; transition: all 0.2s; appearance: none;
+      text-align-last: center; /* Fix for dropdown centering */
     }
+    html[dir="rtl"] select { padding-right: 14px; padding-left: 30px; } /* Fix for RTL dropdown arrow */
+    
     input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(246,177,0,0.2); }
     input.code-input { text-transform: uppercase; font-family: var(--mono); }
 
@@ -200,7 +202,6 @@
     .modal-box { background:var(--bg1); padding:30px; border-radius:20px; max-width:400px; text-align:center; border:1px solid var(--border); }
     .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--ok); color: #000; padding: 10px 24px; border-radius: 30px; font-weight: 800; z-index: 1000; display: none; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-    /* ✅ FIX #2: SEO hidden text (RTL safe, no huge negative left) */
     .seo-text{
       position: absolute;
       width: 1px;
@@ -246,38 +247,38 @@
       <div style="display:flex; gap:8px;">
         <button class="btn" id="btnInstall">📲 Install</button>
         <button class="btn" onclick="toggleTheme()">🌗</button>
-        <button class="btn" onclick="toggleLang()">EN/AR</button>
+        <button class="btn" onclick="toggleLang()">EN / AR</button>
       </div>
     </div>
 
     <div class="mainTabs">
-      <button class="tab active" id="tab1" onclick="switchTab('calc')">Calculator</button>
-      <button class="tab" id="tab2" onclick="switchTab('info')">Info</button>
+      <button class="tab active" id="tab1" onclick="switchTab('calc')" data-i18n="calcTab">Calculator</button>
+      <button class="tab" id="tab2" onclick="switchTab('info')" data-i18n="infoTab">Info</button>
     </div>
 
     <div class="panel" id="panelCalc">
       <div class="modeSwitch">
-        <button class="modeBtn active" id="btnCurr" onclick="setMode('current')">Current / فصلي</button>
-        <button class="modeBtn" id="btnExp" onclick="setMode('expected')">Cumulative / تراكمي</button>
+        <button class="modeBtn active" id="btnCurr" onclick="setMode('current')" data-i18n="currBtn">Current</button>
+        <button class="modeBtn" id="btnExp" onclick="setMode('expected')" data-i18n="expBtn">Cumulative</button>
       </div>
 
       <div style="margin-bottom:14px;">
-        <label class="fixed-label" data-i18n="summerLbl">Is this semester Summer? / هل هذا الفصل صيفي؟</label>
+        <label class="fixed-label" data-i18n="summerLbl">Is this a Summer semester?</label>
         <select id="isSummer">
-          <option value="no" selected data-i18n="summerNo">No / لا</option>
-          <option value="yes" data-i18n="summerYes">Yes / نعم</option>
+          <option value="no" selected data-i18n="summerNo">No</option>
+          <option value="yes" data-i18n="summerYes">Yes</option>
         </select>
       </div>
 
       <div id="prevData" class="hidden" style="margin-bottom: 20px; border-bottom:1px solid var(--border); padding-bottom:20px;">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
           <div class="input-group">
-            <label class="fixed-label" data-i18n="prevGpa">Previous GPA / المعدل السابق</label>
-            <input type="number" id="prevGpa" step="0.01" placeholder="Ex: 2.85">
+            <label class="fixed-label" data-i18n="prevGpa">Previous GPA</label>
+            <input type="number" id="prevGpa" step="0.01" placeholder="2.85">
           </div>
           <div class="input-group">
-            <label class="fixed-label" data-i18n="prevHours">Completed Hours / الساعات المنجزة</label>
-            <input type="number" id="prevHours" step="1" placeholder="Ex: 60">
+            <label class="fixed-label" data-i18n="prevHours">Completed Hours</label>
+            <input type="number" id="prevHours" step="1" placeholder="60">
           </div>
         </div>
       </div>
@@ -301,10 +302,10 @@
       <div id="rowsArea" class="table-container"></div>
 
       <div class="big-actions">
-        <button class="btn-block btn-yellow" onclick="addRow()">+ Add Course / إضافة مادة</button>
+        <button class="btn-block btn-yellow" onclick="addRow()" data-i18n="addBtn">+ Add Course</button>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-          <button class="btn-block btn-outline" onclick="resetAll()">Reset / مسح</button>
-          <button class="btn-block btn-yellow" onclick="compute()">Calculate / احسب</button>
+          <button class="btn-block btn-outline" onclick="resetAll()" data-i18n="resetBtn">Reset</button>
+          <button class="btn-block btn-yellow" onclick="compute()" data-i18n="calcBtn">Calculate</button>
         </div>
       </div>
 
@@ -398,13 +399,10 @@
 
     <div class="footer" style="margin-top: 50px; padding-bottom: 20px;">
       <div style="margin-bottom: 12px; opacity: 0.7;">
-        © <span id="yr"></span> AOU Calculator | Unofficial Student Initiative | <span>v1.9</span>
+        © <span id="yr"></span> AOU Calculator | Unofficial Student Initiative | <span>v1.9.1</span>
       </div>
       <div style="margin-bottom: 6px;">
-        Designed & Developed by: <strong style="color:var(--text); font-size: 13px;">Eng. Homam Ahmad Shaaban</strong>
-      </div>
-      <div>
-        Under Supervision of the Dean of FCS: <strong style="color:var(--text); font-size: 13px;">Dr. Omar Abdulkader</strong>
+        Designed & Developed by: <strong style="color:var(--text); font-size: 13px;">Eng. Humam Ahmed</strong>
       </div>
     </div>
   </div>
@@ -416,15 +414,18 @@ const STORAGE_KEY = "aou_gpa_v19_improve";
 
 const TEXT = {
   en: {
+    calcTab: "Calculator", infoTab: "Info",
+    currBtn: "Current", expBtn: "Cumulative",
+    addBtn: "+ Add Course", resetBtn: "Reset", calcBtn: "Calculate",
     hours: "Credit Hours", grade: "Grade (100)", code: "Course Code", status: "Status",
     semGpa: "SEMESTER GPA", cumGpa: "CUMULATIVE GPA", counted: "Counted", dup: "Replaced",
     rule: "Retake Rule: Latest attempt counts, previous are Replaced.",
     retakeNote: "* Note: According to AOU regulations, retaking a course is not permitted if the previous grade was 'B' or higher.",
     dupWarning: "Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.",
     prevGpa: "Previous GPA", prevHours: "Completed Hours",
-    summerLbl: "Is this semester Summer? / هل هذا الفصل صيفي؟",
-    summerNo: "No / لا",
-    summerYes: "Yes / نعم",
+    summerLbl: "Is this a Summer semester?",
+    summerNo: "No",
+    summerYes: "Yes",
     infoTitle: "Information & Guide",
     aboutTitle: "About",
     aboutText: "This tool helps AOU students calculate Semester GPA and forecast Cumulative GPA.",
@@ -452,16 +453,19 @@ const TEXT = {
       "Note: Fail marks are counted within semester and cumulative GPA."
   },
   ar: {
-    hours: "عدد الساعات", grade: "الدرجة (من 100)", code: "اسم/كود المادة", status: "الحالة",
+    calcTab: "الحاسبة", infoTab: "معلومات",
+    currBtn: "فصلي", expBtn: "تراكمي",
+    addBtn: "+ إضافة مادة", resetBtn: "مسح", calcBtn: "احسب",
+    hours: "عدد الساعات", grade: "الدرجة (من 100)", code: "كود المادة", status: "الحالة",
     semGpa: "المعدل الفصلي", cumGpa: "المعدل التراكمي", counted: "محتسب", dup: "مكرر",
     rule: "قاعدة الإعادة: يُحسب آخر محاولة للمقرر فقط.",
     retakeNote: "* ملاحظة: حسب لوائح الجامعة، لا يُسمح بإعادة المقرر إذا كانت الدرجة السابقة 'B' أو أعلى.",
     dupWarning: "تنبيه: أكاديمياً لا يمكنك تسجيل نفس المادة مرتين في نفس الفصل. التكرار هنا لغرض حساب الإعادة فقط.",
     prevGpa: "المعدل التراكمي السابق", prevHours: "الساعات المنجزة",
     summerLbl: "هل هذا الفصل صيفي؟",
-    summerNo: "لا (Not Summer)",
-    summerYes: "نعم (Summer)",
-    infoTitle: "معلومات",
+    summerNo: "لا",
+    summerYes: "نعم",
+    infoTitle: "معلومات عامة",
     aboutTitle: "حول الحاسبة",
     aboutText: "هذه الأداة تساعد طلاب AOU على حساب المعدل الفصلي وتوقع المعدل التراكمي.",
     scaleTitle: "سلم الدرجات",
@@ -489,7 +493,10 @@ const TEXT = {
   }
 };
 
-// Translates the static UI elements based on the selected language (English/Arabic).
+// ----------------------------------------------------------------------
+// Translates all static UI elements (data-i18n attributes) based on the current language
+// يترجم جميع عناصر الواجهة الثابتة بناءً على اللغة المحددة حالياً
+// ----------------------------------------------------------------------
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -497,7 +504,10 @@ function applyI18n(){
   });
 }
 
-// Initializes the application, sets up event listeners, and restores saved data on page load.
+// ----------------------------------------------------------------------
+// Initializes the application, restores saved state, and sets up event listeners on page load
+// يهيئ التطبيق عند تحميل الصفحة، يسترجع البيانات المحفوظة، ويجهز مستمعي الأحداث
+// ----------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('yr').textContent = new Date().getFullYear();
   if(!localStorage.getItem('theme')) localStorage.setItem('theme', 'dark');
@@ -522,7 +532,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Generates and returns a new HTML row element for course entry, attaching real-time validation listeners.
+// ----------------------------------------------------------------------
+// Generates and returns a new HTML row element for course entry with real-time validation listeners
+// ينشئ ويعيد عنصر HTML جديد (صف) لإدخال بيانات المادة ويربطه بأحداث التحقق اللحظي
+// ----------------------------------------------------------------------
 function rowTemplate(data = {}){
   const code = data.code ?? "";
   const score = (data.score ?? "") === "" ? "" : String(data.score);
@@ -534,7 +547,7 @@ function rowTemplate(data = {}){
     <div class="cell-del"><button class="btn-del" onclick="removeRow(this)">✕</button></div>
     <div class="mobile-wrapper">
       <div class="cell-half cell-hours">
-        <span class="mobile-label">${LANG==='ar'?'الساعات (Hours)':'Credit Hours'}</span>
+        <span class="mobile-label">${LANG==='ar'?'الساعات':'Credit Hours'}</span>
         <select data-act="hours">
           <option value="3" ${hours==='3'?'selected':''}>3</option>
           <option value="4" ${hours==='4'?'selected':''}>4</option>
@@ -542,13 +555,13 @@ function rowTemplate(data = {}){
         </select>
       </div>
       <div class="cell-half cell-grade">
-        <span class="mobile-label">${LANG==='ar'?'الدرجة (Grade)':'Grade (100)'}</span>
+        <span class="mobile-label">${LANG==='ar'?'الدرجة':'Grade'}</span>
         <input type="text" inputmode="decimal" data-act="score" placeholder="88" value="${score}">
         <span class="grade-preview"></span>
       </div>
     </div>
     <div class="cell-code">
-      <span class="mobile-label">${LANG==='ar'?'اسم المادة (Code)':'Course Code'}</span>
+      <span class="mobile-label">${LANG==='ar'?'اسم المادة':'Course Code'}</span>
       <input type="text" data-act="code" class="code-input" placeholder="GR101" value="${code}">
     </div>
     <div class="cell-status"><span class="badge ok" data-act="status">---</span></div>
@@ -573,7 +586,10 @@ function rowTemplate(data = {}){
   return div;
 }
 
-// Validates the entered score to ensure it is a numerical value between 0 and 100.
+// ----------------------------------------------------------------------
+// Validates the entered score to ensure it is a numerical value between 0 and 100
+// يتحقق من صحة الدرجة المدخلة للتأكد من أنها رقم بين 0 و 100 ويطبق تأثير الخطأ بصرياً
+// ----------------------------------------------------------------------
 function validateRow(row){
   const scoreInp = row.querySelector('[data-act="score"]');
   const val = scoreInp.value;
@@ -586,7 +602,10 @@ function validateRow(row){
   else scoreInp.classList.remove('input-error');
 }
 
-// Updates the visual badge dynamically to display the corresponding letter grade as the user types.
+// ----------------------------------------------------------------------
+// Updates the visual badge dynamically to display the corresponding letter grade as the user types
+// يحدث المربع الصغير أسفل الدرجة ليظهر الحرف الأكاديمي (A, B, C) والنقاط ديناميكياً أثناء الكتابة
+// ----------------------------------------------------------------------
 function updatePreview(input){
   const previewEl = input.nextElementSibling;
   const valStr = input.value;
@@ -608,7 +627,10 @@ function updatePreview(input){
   else previewEl.classList.add('bad');
 }
 
-// Maps a numerical percentage (0-100) to AOU's official letter grades and GPA points.
+// ----------------------------------------------------------------------
+// Maps a numerical percentage (0-100) to AOU's official letter grades and GPA points
+// يربط النسبة المئوية للدرجة مع سلم الدرجات والنقاط الرسمي الخاص بجامعة AOU
+// ----------------------------------------------------------------------
 function getGradeInfo(score){
   if (score >= 90) return { points: 4.0, letter: 'A' };
   if (score >= 82) return { points: 3.5, letter: 'B+' };
@@ -619,24 +641,28 @@ function getGradeInfo(score){
   return { points: 0.0, letter: 'F' };
 }
 
-// Appends a newly created course row to the calculation table.
+// ----------------------------------------------------------------------
+// Appends a newly created course row to the calculation table UI
+// يضيف صف جديد لإدخال مادة جديدة في واجهة المستخدم
+// ----------------------------------------------------------------------
 function addRow(data){
   document.getElementById('rowsArea').appendChild(rowTemplate(data));
 }
 
-// Removes a specific course row from the UI and triggers a recalculation.
+// ----------------------------------------------------------------------
+// Removes a specific course row from the UI, saves state, and triggers a recalculation
+// يحذف صف مادة معينة، يحفظ الحالة، ويعيد حساب المعدل
+// ----------------------------------------------------------------------
 function removeRow(btn){
   btn.parentElement.parentElement.remove();
   if(document.getElementById('rowsArea').children.length === 0) addRow();
   saveState(); compute();
 }
 
-/**
- * Evaluates the calculated GPA and displays the student's academic standing or graduation eligibility.
- * type:
- * - "sem": semester badge (NOT graduation eligibility)
- * - "cum": cumulative badge (graduation eligibility rules apply)
- */
+// ----------------------------------------------------------------------
+// Evaluates the calculated GPA and displays the student's academic standing or graduation eligibility
+// يقيم المعدل المحسوب ويظهر التقدير الأكاديمي للطالب (ممتاز، جيد جداً...) أو حالة التخرج
+// ----------------------------------------------------------------------
 function showRank(elId, gpa, type){
   const el = document.getElementById(elId);
   el.classList.remove('hidden');
@@ -654,20 +680,17 @@ function showRank(elId, gpa, type){
     return;
   }
 
-  // Below 2.00
   if(type === "cum"){
-    el.textContent = LANG==='ar'
-      ? "لا يتم تخريجه (CGPA < 2.00)"
-      : "Not Graduated (CGPA < 2.00)";
+    el.textContent = LANG==='ar' ? "لا يتم تخريجه (CGPA < 2.00)" : "Not Graduated (CGPA < 2.00)";
   } else {
-    // semester only (avoid misleading)
-    el.textContent = LANG==='ar'
-      ? "ضعيف (GPA < 2.00)"
-      : "Weak (GPA < 2.00)";
+    el.textContent = LANG==='ar' ? "ضعيف (GPA < 2.00)" : "Weak (GPA < 2.00)";
   }
 }
 
-// Checks AOU academic rules to determine if the student is under academic warning based on Cumulative GPA.
+// ----------------------------------------------------------------------
+// Checks AOU academic rules to determine if the student is under academic warning based on Cumulative GPA
+// يتحقق من القوانين الأكاديمية لجامعة AOU لتحديد ما إذا كان الطالب تحت الإنذار الأكاديمي أو مؤهل للتخرج
+// ----------------------------------------------------------------------
 function updateAdvisingBox(cgpa, completedHours){
   const box = document.getElementById("advisingBox");
   if(!box) return;
@@ -681,7 +704,6 @@ function updateAdvisingBox(cgpa, completedHours){
   const isSummer = (document.getElementById("isSummer")?.value === "yes");
   const notEligibleToGraduate = (cgpa < 2.00);
 
-  // warning rule: after 12 hours, CGPA < 2, end of any semester except summer
   const warningApplies = (!isSummer && completedHours >= 12 && cgpa < 2.00);
 
   const sourceLine = (LANG==="ar")
@@ -691,61 +713,28 @@ function updateAdvisingBox(cgpa, completedHours){
   if(notEligibleToGraduate){
     if(warningApplies){
       box.innerHTML = (LANG==="ar")
-        ? `
-          <div>
-            <span style="color:var(--warn); font-weight:900;">⚠️ إنذار أكاديمي</span><br>
-            <span style="color:var(--danger); font-weight:900;">❌ غير مؤهل للتخرج</span><br>
-            <small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small>
-          </div>
-        `
-        : `
-          <div>
-            <span style="color:var(--warn); font-weight:900;">⚠️ Academic Warning</span><br>
-            <span style="color:var(--danger); font-weight:900;">❌ Not Eligible to Graduate</span><br>
-            <small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small>
-          </div>
-        `;
+        ? `<div><span style="color:var(--warn); font-weight:900;">⚠️ إنذار أكاديمي</span><br><span style="color:var(--danger); font-weight:900;">❌ غير مؤهل للتخرج</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`
+        : `<div><span style="color:var(--warn); font-weight:900;">⚠️ Academic Warning</span><br><span style="color:var(--danger); font-weight:900;">❌ Not Eligible to Graduate</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`;
     } else {
       const note = isSummer
         ? (LANG==="ar" ? "ملاحظة: فصل صيفي — لا يظهر سطر الإنذار." : "Note: Summer semester — warning line is hidden.")
         : (LANG==="ar" ? "ملاحظة: الإنذار يطبق بعد إنجاز 12 ساعة أو أكثر (وبنهاية أي فصل ما عدا الصيفي)." : "Note: Warning applies after completing 12+ credit hours (except summer).");
 
       box.innerHTML = (LANG==="ar")
-        ? `
-          <div>
-            <span style="color:var(--danger); font-weight:900;">❌ غير مؤهل للتخرج</span><br>
-            <small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small>
-            <small class="ruleNote" style="color:var(--warn)">${note}</small>
-          </div>
-        `
-        : `
-          <div>
-            <span style="color:var(--danger); font-weight:900;">❌ Not Eligible to Graduate</span><br>
-            <small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small>
-            <small class="ruleNote" style="color:var(--warn)">${note}</small>
-          </div>
-        `;
+        ? `<div><span style="color:var(--danger); font-weight:900;">❌ غير مؤهل للتخرج</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small><small class="ruleNote" style="color:var(--warn)">${note}</small></div>`
+        : `<div><span style="color:var(--danger); font-weight:900;">❌ Not Eligible to Graduate</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small><small class="ruleNote" style="color:var(--warn)">${note}</small></div>`;
     }
   } else {
     box.innerHTML = (LANG==="ar")
-      ? `
-        <div>
-          <span style="color:var(--ok); font-weight:900;">✅ وضع أكاديمي طبيعي</span><br>
-          <span style="color:var(--ok); font-weight:900;">🎓 مؤهل للتخرج</span><br>
-          <small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small>
-        </div>
-      `
-      : `
-        <div>
-          <span style="color:var(--ok); font-weight:900;">✅ Good Standing</span><br>
-          <span style="color:var(--ok); font-weight:900;">🎓 Eligible to Graduate</span><br>
-          <small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small>
-        </div>
-      `;
+      ? `<div><span style="color:var(--ok); font-weight:900;">✅ وضع أكاديمي طبيعي</span><br><span style="color:var(--ok); font-weight:900;">🎓 مؤهل للتخرج</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`
+      : `<div><span style="color:var(--ok); font-weight:900;">✅ Good Standing</span><br><span style="color:var(--ok); font-weight:900;">🎓 Eligible to Graduate</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`;
   }
 }
 
-// The core mathematical engine: Processes inputs, applies the retake rule, and computes the final GPA.
+// ----------------------------------------------------------------------
+// The core mathematical engine: Processes inputs, applies the retake rule, and computes final Semester & Cumulative GPA
+// المحرك الرياضي الأساسي: يعالج المدخلات، يطبق قاعدة إعادة المقررات، ويحسب المعدل الفصلي والتراكمي النهائي
+// ----------------------------------------------------------------------
 function compute(){
   const rows = Array.from(document.getElementById('rowsArea').children);
   const parsed = rows.map((row, idx) => {
@@ -811,7 +800,10 @@ function compute(){
   }
 }
 
-// Saves the current calculator state to the browser's LocalStorage to prevent data loss.
+// ----------------------------------------------------------------------
+// Saves the current calculator state and user inputs to the browser's LocalStorage to prevent data loss
+// يحفظ حالة الحاسبة والمدخلات الحالية في مساحة التخزين المحلية للمتصفح لمنع فقدان البيانات عند التحديث
+// ----------------------------------------------------------------------
 function saveState(){
   const rows = Array.from(document.getElementById('rowsArea').children).map(row => ({
     code: row.querySelector('[data-act="code"]').value,
@@ -829,7 +821,10 @@ function saveState(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-// Retrieves previously saved state from LocalStorage and reconstructs the user interface.
+// ----------------------------------------------------------------------
+// Retrieves previously saved state from LocalStorage and reconstructs the user interface and calculations
+// يسترجع البيانات المحفوظة سابقاً من المتصفح ويعيد بناء واجهة المستخدم والحسابات
+// ----------------------------------------------------------------------
 function restoreState(){
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -839,7 +834,7 @@ function restoreState(){
     if(st.lang){
       LANG = st.lang;
       document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
-      document.documentElement.lang = (LANG === 'ar') ? 'ar' : 'en'; // ✅ added
+      document.documentElement.lang = (LANG === 'ar') ? 'ar' : 'en';
     }
 
     if(st.mode) setMode(st.mode);
@@ -855,22 +850,19 @@ function restoreState(){
     else addRow();
 
     applyI18n();
-    document.querySelector('[data-lang="hours"]').textContent = TEXT[LANG].hours;
-    document.querySelector('[data-lang="grade"]').textContent = TEXT[LANG].grade;
-    document.querySelector('[data-lang="code"]').textContent = TEXT[LANG].code;
-    document.querySelector('[data-lang="status"]').textContent = TEXT[LANG].status;
-    document.querySelector('[data-lang="semGpa"]').textContent = TEXT[LANG].semGpa;
-    document.querySelector('[data-lang="cumGpa"]').textContent = TEXT[LANG].cumGpa;
-
+    updateTableHeaders();
     compute();
   } catch(e) {
     addRow();
   }
 }
 
-// Clears all input fields, resets calculations to zero, and removes data from LocalStorage.
+// ----------------------------------------------------------------------
+// Clears all input fields, resets calculations to zero, and removes saved data from LocalStorage
+// يمسح جميع حقول الإدخال، يعيد الحسابات للصفر، ويحذف البيانات المحفوظة من المتصفح
+// ----------------------------------------------------------------------
 function resetAll(){
-  if(confirm('Clear all fields?')){
+  if(confirm(LANG === 'ar' ? 'هل أنت متأكد من مسح جميع الحقول؟' : 'Clear all fields?')){
     document.getElementById('rowsArea').innerHTML = '';
     addRow();
     document.getElementById('prevGpa').value = '';
@@ -879,31 +871,43 @@ function resetAll(){
     document.getElementById('semGpa').textContent = '0.00';
     document.getElementById('cumGpa').textContent = '0.00';
     localStorage.removeItem(STORAGE_KEY);
-    showToast("Reset Done 🗑️");
+    showToast(LANG === 'ar' ? 'تم المسح 🗑️' : 'Reset Done 🗑️');
     compute();
   }
 }
 
-// Displays a temporary success/notification message on the screen.
+// ----------------------------------------------------------------------
+// Displays a temporary pop-up notification (Toast message) on the screen
+// يعرض رسالة إشعار منبثقة مؤقتة للمستخدم على الشاشة
+// ----------------------------------------------------------------------
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
   setTimeout(() => t.style.display='none', 1500);
 }
 
-// Toggles the application appearance between Dark and Light themes.
+// ----------------------------------------------------------------------
+// Toggles the application appearance between Dark Mode and Light Mode
+// يبدل مظهر التطبيق بين الوضع الليلي والوضع النهاري
+// ----------------------------------------------------------------------
 function toggleTheme(){
   const current = document.documentElement.getAttribute('data-theme');
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
-// Applies the selected theme to the root HTML document and saves preference.
+// ----------------------------------------------------------------------
+// Applies the selected theme (Dark/Light) to the HTML document and saves the preference
+// يطبق المظهر المختار (ليلي/نهاري) على الصفحة ويحفظ تفضيل المستخدم
+// ----------------------------------------------------------------------
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme', t);
   localStorage.setItem('theme', t);
 }
 
-// Switches the calculator mode between Semester (Current) and Cumulative (Expected) calculations.
+// ----------------------------------------------------------------------
+// Switches the calculator mode between Semester (Current) and Cumulative (Expected) calculations
+// يبدل وضع الحاسبة بين الحساب الفصلي (الحالي) والحساب التراكمي (المتوقع)
+// ----------------------------------------------------------------------
 function setMode(m){
   MODE = m;
   document.getElementById('btnCurr').classList.toggle('active', m==='current');
@@ -919,13 +923,11 @@ function setMode(m){
   saveState(); compute();
 }
 
-// Toggles the application language between English and Arabic, updating UI elements and text direction.
-function toggleLang(){
-  LANG = (LANG === 'en') ? 'ar' : 'en';
-  document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
-  document.documentElement.lang = (LANG === 'ar') ? 'ar' : 'en'; // ✅ added
-
-  applyI18n();
+// ----------------------------------------------------------------------
+// Updates the text of table headers and dynamic mobile labels when language changes
+// يحدث نصوص عناوين الجدول والتسميات التوضيحية الخاصة بالجوال عند تغيير اللغة
+// ----------------------------------------------------------------------
+function updateTableHeaders() {
   document.querySelector('[data-lang="hours"]').textContent = TEXT[LANG].hours;
   document.querySelector('[data-lang="grade"]').textContent = TEXT[LANG].grade;
   document.querySelector('[data-lang="code"]').textContent = TEXT[LANG].code;
@@ -935,16 +937,32 @@ function toggleLang(){
 
   const rows = document.querySelectorAll('.trow');
   rows.forEach(row => {
-    row.querySelector('.cell-hours .mobile-label').textContent = LANG==='ar'?'الساعات (Hours)':'Credit Hours';
-    row.querySelector('.cell-grade .mobile-label').textContent = LANG==='ar'?'الدرجة (Grade)':'Grade (100)';
-    row.querySelector('.cell-code .mobile-label').textContent = LANG==='ar'?'اسم المادة (Code)':'Course Code';
+    row.querySelector('.cell-hours .mobile-label').textContent = TEXT[LANG].hours;
+    row.querySelector('.cell-grade .mobile-label').textContent = TEXT[LANG].grade;
+    row.querySelector('.cell-code .mobile-label').textContent = TEXT[LANG].code;
   });
+}
 
+// ----------------------------------------------------------------------
+// Toggles the application language between English and Arabic, updating UI elements and text direction LTR/RTL
+// يبدل لغة التطبيق بين الإنجليزية والعربية، ويحدث اتجاه النصوص من اليمين لليسار والعكس
+// ----------------------------------------------------------------------
+function toggleLang(){
+  LANG = (LANG === 'en') ? 'ar' : 'en';
+  document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
+  document.documentElement.lang = (LANG === 'ar') ? 'ar' : 'en';
+
+  applyI18n();
+  updateTableHeaders();
+  
   saveState();
   compute();
 }
 
-// Switches the active view between the Calculator tab and the Information guide tab.
+// ----------------------------------------------------------------------
+// Switches the active view between the Calculator tab and the Information Guide tab
+// يبدل الواجهة النشطة بين تبويب الحاسبة وتبويب معلومات الإرشاد الأكاديمي
+// ----------------------------------------------------------------------
 function switchTab(t){
   document.getElementById('panelCalc').classList.toggle('hidden', t!=='calc');
   document.getElementById('panelInfo').classList.toggle('hidden', t!=='info');
@@ -952,7 +970,10 @@ function switchTab(t){
   document.getElementById('tab2').classList.toggle('active', t==='info');
 }
 
-// live inputs
+// ----------------------------------------------------------------------
+// Live Event Listeners for previous GPA/Hours to recalculate expected Cumulative GPA automatically
+// مستمعي أحداث لحظية لحقول المعدل/الساعات السابقة لإعادة حساب المعدل التراكمي المتوقع تلقائياً
+// ----------------------------------------------------------------------
 document.getElementById('prevGpa').addEventListener('input', () => { saveState(); compute(); });
 document.getElementById('prevHours').addEventListener('input', () => { saveState(); compute(); });
 </script>
