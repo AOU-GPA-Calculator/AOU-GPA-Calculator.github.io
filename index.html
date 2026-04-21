@@ -100,11 +100,17 @@
       background: var(--input-bg); color: var(--text); text-align: center;
       font-weight: 700; outline: none; font-size:16px; transition: all 0.2s; appearance: none;
       text-align-last: center; /* Fix for dropdown centering */
+      
     }
     html[dir="rtl"] select { padding-right: 14px; padding-left: 30px; } /* Fix for RTL dropdown arrow */
     
     input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(246,177,0,0.2); }
     input.code-input { text-transform: uppercase; font-family: var(--mono); }
+    option {
+      background-color: var(--bg1);
+      color: var(--text);
+      font-weight: 700;
+    }
 
     .input-error {
       border: 2px solid var(--danger) !important;
