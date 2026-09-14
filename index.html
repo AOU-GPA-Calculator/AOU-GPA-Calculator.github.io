@@ -1,587 +1,515 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-theme="dark">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AOU GPA Calculator</title>
-  <meta name="description" content="AOU GPA Calculator for Arab Open University students. Calculate Semester GPA, Cumulative GPA, What If scenarios, study-plan progress and export results." />
-  <link rel="canonical" href="https://aou-gpa-calculator.github.io/" />
-  <meta name="robots" content="index,follow,max-image-preview:large" />
-  <meta name="theme-color" content="#061b2c" />
-  <link rel="manifest" href="manifest.json" />
-  <meta property="og:title" content="AOU GPA Calculator - حاسبة معدل الجامعة العربية المفتوحة" />
-  <meta property="og:description" content="حاسبة المعدل الفصلي والتراكمي مع ماذا لو، خطط التخصص، PDF ومشاركة النتيجة." />
-  <meta property="og:image" content="https://aou-gpa-calculator.github.io/og-image.png" />
-  <meta property="og:url" content="https://aou-gpa-calculator.github.io/" />
-  <meta property="og:type" content="website" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة المعدل التراكمي المتقدمة - AOU GPA Calculator</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-hover: #1e40af;
+            --secondary: #3b82f6;
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #2563eb;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
 
-  <!-- PDF export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js" defer></script>
-  <!-- Share image -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-  <style>
-    :root{
-      --bg1:#061b2c; --bg2:#0a2b45; --card-bg:rgba(255,255,255,.05); --border:rgba(255,255,255,.12);
-      --text:#eaf2ff; --muted:rgba(234,242,255,.65); --gold:#f6b100; --gold2:#ffbf2f;
-      --danger:#ff5b5b; --ok:#4ee29a; --input-bg:rgba(0,0,0,.25); --radius:16px;
-      --blue-header:#2563eb; --mono:ui-monospace,monospace; --warn:#ff9f43;
-      --shadow:0 10px 40px rgba(0,0,0,.2);
-    }
-    html[data-theme="light"]{
-      --bg1:#f6f8ff; --bg2:#eef2ff; --card-bg:#fff; --border:rgba(0,0,0,.10);
-      --text:#0b1220; --muted:rgba(11,18,32,.65); --input-bg:#f0f2f5;
-      --shadow:0 10px 40px rgba(0,0,0,.08);
-    }
-    *{box-sizing:border-box}
-    html,body{overflow-x:hidden}
-    body{margin:0;font-family:"Cairo",sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text);min-height:100vh;padding-bottom:60px}
-    button,input,select{font:inherit}
-    .wrap{max-width:980px;margin:20px auto;padding:0 16px}
-    .topbar{display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:25px;gap:15px}
-    .brand{display:flex;align-items:center;gap:15px;justify-content:center;cursor:pointer;transition:transform .2s}
-    .brand:active{transform:scale(.95);opacity:.8}
-    .brand img{height:60px;width:auto;object-fit:contain}
-    .brand-text{text-align:left}.brand-text h1{margin:0;font-size:24px;font-weight:900;line-height:1.1}.brand-text p{margin:0;font-size:12px;color:var(--muted);font-weight:600}
-    html[dir="rtl"] .brand-text{text-align:right}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-    .btn{padding:8px 18px;border-radius:99px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-weight:700;font-size:13px;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
-    .btn:active{transform:scale(.98)}
-    #btnInstall{display:none;background:var(--text);color:var(--bg1);border-color:var(--text)}
-    .mainTabs{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-    .tab{background:transparent;border:1px solid var(--border);padding:10px 24px;border-radius:12px;color:var(--muted);font-weight:700;cursor:pointer;flex:1;min-width:145px;max-width:220px;transition:.2s}
-    .tab.active{background:rgba(246,177,0,.15);color:var(--gold);border-color:var(--gold)}
-    .panel{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:25px;box-shadow:var(--shadow)}
-    .modeSwitch{display:flex;gap:10px;margin-bottom:14px;background:rgba(0,0,0,.2);padding:5px;border-radius:12px;flex-wrap:wrap}
-    .modeBtn{flex:1;min-width:100px;padding:12px;border:none;border-radius:10px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer;transition:.2s}
-    .modeBtn.active{background:var(--card-bg);color:var(--text);box-shadow:0 4px 15px rgba(0,0,0,.1)}
-    .input-group{margin-bottom:5px}.fixed-label{display:block;font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px;text-align:left}
-    html[dir="rtl"] .fixed-label{text-align:right}
-    input,select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);text-align:center;font-weight:700;outline:none;font-size:16px;transition:.2s;appearance:none;text-align-last:center}
-    input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(246,177,0,.2)}
-    input.code-input{text-transform:uppercase;font-family:var(--mono)}
-    input::placeholder{color:var(--muted)}
-    option{background:var(--bg1);color:var(--text);font-weight:700}
-    .input-error{border:2px solid var(--danger)!important;background:rgba(255,91,91,.1)!important;color:var(--danger)!important;box-shadow:0 0 0 4px rgba(255,91,91,.1);animation:shake .3s}
-    @keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(5px)}50%{transform:translateX(-5px)}75%{transform:translateX(5px)}100%{transform:translateX(0)}}
-    .course-hint{font-size:11px;color:var(--muted);margin-top:6px;text-align:center;min-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .cell-grade{position:relative;padding-bottom:20px}.grade-preview{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:900;padding:2px 10px;border-radius:20px;background:rgba(0,0,0,.3);border:1px solid transparent;white-space:nowrap;opacity:0;transition:.2s;pointer-events:none;z-index:10}
-    .grade-preview.show{opacity:1;bottom:0}.grade-preview.excellent{color:var(--gold);border-color:rgba(246,177,0,.3)}.grade-preview.good{color:var(--ok);border-color:rgba(78,226,154,.3)}.grade-preview.warn{color:var(--warn);border-color:rgba(255,159,67,.3)}.grade-preview.bad{color:var(--danger);border-color:rgba(255,91,91,.3)}
-    .thead,.trow{display:grid;grid-template-columns:1.65fr 1fr 1fr 100px 60px;gap:15px}
-    .thead{padding:0 10px 15px;border-bottom:1px solid var(--border);margin-bottom:10px;font-size:13px;font-weight:800;color:var(--muted);text-align:center}
-    .trow{align-items:start;padding:15px 0;border-bottom:1px solid var(--border);animation:fadeIn .3s ease-out}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-    .mobile-wrapper{display:contents}
-    .cell-code{order:1}.cell-hours{order:2}.cell-grade{order:3}.cell-status{order:4}.cell-del{order:5}.mobile-label{display:none}
-    .badge{display:flex;align-items:center;justify-content:center;min-height:40px;border-radius:10px;font-size:12px;font-weight:800;width:100%;margin-top:2px}.badge.ok{background:rgba(78,226,154,.1);color:var(--ok);border:1px solid rgba(78,226,154,.2)}.badge.dup{background:rgba(255,91,91,.1);color:var(--danger);text-decoration:line-through;opacity:.8;border:1px solid rgba(255,91,91,.2)}
-    .btn-del{width:100%;height:45px;border-radius:12px;border:1px solid rgba(255,91,91,.3);background:rgba(255,91,91,.1);color:var(--danger);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.2s}.btn-del:hover{background:var(--danger);color:#fff}
-    .big-actions{display:flex;flex-direction:column;gap:12px;margin-top:30px}.btn-block{width:100%;padding:16px;border-radius:99px;font-weight:900;font-size:16px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s}.btn-yellow{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1b1400;box-shadow:0 4px 20px rgba(246,177,0,.3)}.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-    .results-area{text-align:center;margin-top:35px;padding-top:25px;border-top:1px solid var(--border)}.res-num{font-size:64px;font-weight:900;line-height:1;margin-bottom:5px;letter-spacing:-2px;color:var(--text)}.res-label{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:1px;margin-bottom:15px}.res-badge{display:inline-block;padding:10px 30px;border-radius:12px;border:1px solid var(--gold);color:var(--gold);background:rgba(246,177,0,.1);font-weight:900;font-size:14px}
-    .hidden{display:none!important}
-    .ruleBox{margin:14px 0 0;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.06);padding:15px;color:var(--muted);font-size:13px;line-height:1.6;text-align:center;font-weight:700}.ruleNote{font-size:12px;color:var(--danger);margin-top:8px;display:block;opacity:.95}
-    html[data-theme="light"] .ruleBox{background:rgba(255,255,255,.7)}
-    .dupWarning{margin-top:12px;padding:12px;background:rgba(246,177,0,.1);border:1px solid var(--gold);border-radius:10px;color:var(--gold);font-size:13px;text-align:center;animation:popIn .3s}@keyframes popIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-    .info-header{text-align:center;margin-bottom:25px}.info-header h2{margin:0;font-size:24px;font-weight:900}
-    .info-section{margin-bottom:30px}.info-title{display:flex;align-items:center;gap:8px;font-weight:900;font-size:16px;margin-bottom:15px;color:var(--gold)}.info-box{background:rgba(255,255,255,.04);padding:20px;border-radius:16px;border:1px solid var(--border);font-size:14px;line-height:1.7;color:var(--muted)}
-    .info-table{width:100%;border-collapse:collapse;font-size:13px;font-weight:700;overflow:hidden;border-radius:12px;margin-bottom:10px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.info-table th{background:var(--blue-header);color:#fff;padding:14px;text-align:center;border-bottom:1px solid var(--border)}.info-table td{padding:12px;text-align:center;border-bottom:1px solid var(--border);color:var(--text);background:rgba(255,255,255,.02)}.info-table tr:last-child td{border-bottom:none}
-    details{margin-bottom:10px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.02)}details[open]{background:rgba(255,255,255,.05);border-color:var(--gold)}summary{padding:15px;cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between;align-items:center;color:var(--text)}summary::after{content:'+';font-size:18px;color:var(--gold);font-weight:900}details[open] summary::after{content:'-'}
-    .faq-content{padding:15px;font-size:13px;line-height:1.7;color:var(--muted);border-top:1px solid var(--border)}
-    .footer{text-align:center;font-size:12px;color:var(--muted);margin-top:40px;line-height:1.6}.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}.modal-box{background:var(--bg1);padding:30px;border-radius:20px;max-width:500px;width:100%;text-align:center;border:1px solid var(--border)}.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--ok);color:#000;padding:10px 24px;border-radius:30px;font-weight:800;z-index:1000;display:none;box-shadow:0 10px 20px rgba(0,0,0,.2)}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-    .scenario-card{padding:18px;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.03);margin-top:15px}.scenario-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:15px}
-    .quick-grades{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}.quick-grade{border:1px solid var(--border);background:var(--card-bg);color:var(--text);border-radius:10px;padding:8px 14px;font-weight:900;cursor:pointer}.quick-grade.active{border-color:var(--gold);color:var(--gold);background:rgba(246,177,0,.12)}
-    .scenario-result{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:18px}.metric{padding:15px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.03);text-align:center}.metric .big{font-size:28px;font-weight:900}.metric small{display:block;color:var(--muted);font-weight:700;margin-top:3px}
-    .plan-controls{display:grid;grid-template-columns:1fr 1fr;gap:15px}.progress-track{height:12px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin:10px 0}.progress-bar{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0;transition:.3s}
-    .plan-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}.plan-summary .metric{padding:12px}.plan-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:520px;overflow:auto;padding-right:3px}.plan-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025)}.plan-item input{width:auto;appearance:auto;padding:0}.plan-item-main{flex:1;text-align:left}.plan-item-code{font-family:var(--mono);font-weight:900}.plan-item-title{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}.plan-hours{font-weight:900;color:var(--gold);font-size:12px}
-    .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.action-row .btn{flex:1;min-width:150px}
-    .seo-text{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
-    .print-only{display:none}
-    @media(max-width:768px){
-      .thead{display:none}.trow{display:flex;flex-direction:column;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:20px;gap:15px;margin-bottom:15px}.cell-code,.cell-status,.cell-del{width:100%}.mobile-wrapper{display:flex;gap:15px;width:100%;order:2}.cell-half{flex:1}.cell-code{order:1}.cell-status{order:3;display:none}.cell-del{order:4;margin-top:5px}.mobile-label{display:block;font-size:13px;font-weight:800;margin-bottom:8px;color:var(--gold);text-align:left}html[dir="rtl"] .mobile-label{text-align:right}.grade-preview{bottom:2px;left:auto;right:15px;transform:none}html[dir="rtl"] .grade-preview{right:auto;left:15px}.brand img{height:50px}.two-col,.three-col,.scenario-grid,.scenario-result,.plan-controls{grid-template-columns:1fr}.plan-summary{grid-template-columns:1fr 1fr}.plan-list{grid-template-columns:1fr}.res-num{font-size:54px}.mainTabs .tab{flex:1 1 44%}
-    }
-    @media print{body{background:#fff;color:#111}.no-print{display:none!important}.print-only{display:block}.panel{box-shadow:none;border:none}.wrap{max-width:none}.footer{display:none}}
-  </style>
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--secondary);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        /* جدول المقياس المرجعي للدرجات (AOU) */
+        .scale-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .scale-table th, .scale-table td {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        .scale-table th {
+            background-color: #0f172a;
+            color: var(--secondary);
+        }
+
+        .scale-table td {
+            background-color: #1e293b;
+        }
+
+        /* نماذج الإدخال */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            background-color: #0f172a;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--secondary);
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            width: auto;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* أدوات التصفية والتحكم */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* جدول المواد المضافة */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        table.data-table th, table.data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table.data-table th {
+            background-color: #0f172a;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        table.data-table tbody tr:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        /* لوحة النتائج */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .result-card h3 {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .result-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .actions-bottom {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
-  <section class="seo-text">
-    <h1>AOU GPA Calculator</h1>
-    <p>Free GPA calculator for Arab Open University students with Semester GPA, Cumulative GPA, What If projections and study plan progress.</p>
-  </section>
 
-  <div class="modal" id="disclaimerModal">
-    <div class="modal-box">
-      <h2 style="color:var(--gold);margin-top:0">⚠️ Disclaimer</h2>
-      <p style="font-size:14px;line-height:1.7">This tool is for guidance only.<br>هذه الأداة للإرشاد فقط، وليست بديلًا عن السجل الأكاديمي أو لوائح الجامعة.</p>
-      <button class="btn btn-yellow" style="padding:10px 30px" onclick="document.getElementById('disclaimerModal').style.display='none'">I Understand / فهمت</button>
-    </div>
-  </div>
+<div class="wrapper">
+    <header>
+        <h1>حاسبة المعدل التراكمي - AOU</h1>
+        <p>مصممة خصيصاً لنظام الجامعة العربية المفتوحة وفقاً لمقياس الدرجات الرسمي المعتمد</p>
+    </header>
 
-  <div class="toast" id="toast">Saved ✅</div>
-
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand" onclick="window.location.reload()">
-        <img src="aou-logo.png" alt="AOU" onerror="this.src='https://www.aou.edu.kw/images/aou_logo.png'" />
-        <div class="brand-text"><h1>AOU GPA</h1><p>Student Calculator</p></div>
-      </div>
-      <div class="toolbar no-print">
-        <button class="btn" id="btnInstall">📲 Install</button>
-        <button class="btn" onclick="toggleTheme()">🌗</button>
-        <button class="btn" onclick="toggleLang()">EN / AR</button>
-      </div>
-    </div>
-
-    <div class="mainTabs no-print">
-      <button class="tab active" id="tab1" onclick="switchTab('calc')" data-i18n="calcTab">Calculator</button>
-      <button class="tab" id="tab2" onclick="switchTab('plan')" data-i18n="planTab">Study Plan</button>
-      <button class="tab" id="tab3" onclick="switchTab('info')" data-i18n="infoTab">Info</button>
+    <!-- بطاقة مقياس الدرجات الرسمي للجامعة -->
+    <div class="card">
+        <h2>🎓 مقياس الدرجات الرسمي المعتمد (AOU Grading Scale)</h2>
+        <div class="table-responsive">
+            <table class="scale-table">
+                <thead>
+                    <tr>
+                        <th>النسبة المئوية</th>
+                        <th>النقاط (Points)</th>
+                        <th>التقدير (Grade)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>90 - 100%</td><td>4.00</td><td>A</td></tr>
+                    <tr><td>82 - 89%</td><td>3.50</td><td>B+</td></tr>
+                    <tr><td>74 - 81%</td><td>3.00</td><td>B</td></tr>
+                    <tr><td>66 - 73%</td><td>2.50</td><td>C+</td></tr>
+                    <tr><td>58 - 65%</td><td>2.00</td><td>C</td></tr>
+                    <tr><td>50 - 57%</td><td>1.50</td><td>D</td></tr>
+                    <tr><td>أقل من 50%</td><td>0.00</td><td>F</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- CALCULATOR -->
-    <div class="panel" id="panelCalc">
-      <div class="modeSwitch no-print">
-        <button class="modeBtn active" id="btnCurr" onclick="setMode('current')" data-i18n="currBtn">Current</button>
-        <button class="modeBtn" id="btnExp" onclick="setMode('expected')" data-i18n="expBtn">Cumulative</button>
-        <button class="modeBtn" id="btnWhatIf" onclick="setMode('whatif')" data-i18n="whatIfBtn">What If</button>
-      </div>
-
-      <div id="standardCalc">
-        <div class="two-col" style="margin-bottom:18px">
-          <div>
-            <label class="fixed-label" data-i18n="summerLbl">Is this a Summer semester?</label>
-            <select id="isSummer"><option value="no" selected data-i18n="summerNo">No</option><option value="yes" data-i18n="summerYes">Yes</option></select>
-          </div>
-          <div>
-            <label class="fixed-label" data-i18n="selectedPlanLbl">Study Plan (optional)</label>
-            <select id="calcPlanSelect"><option value="" data-i18n="noPlan">No plan selected</option></select>
-          </div>
+    <!-- بطاقة إضافة مادة جديدة -->
+    <div class="card">
+        <h2>➕ إضافة مادة دراسية جديدة</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="courseName">اسم أو رمز المادة</label>
+                <input type="text" id="courseName" placeholder="مثال: M131 أو شبكات">
+            </div>
+            <div class="form-group">
+                <label for="courseCredits">الساعات المعتمدة</label>
+                <input type="number" id="courseCredits" min="1" max="6" value="3">
+            </div>
+            <div class="form-group">
+                <label for="courseGrade">التقدير الرسمي (AOU)</label>
+                <select id="courseGrade">
+                    <option value="4.00">A (4.00 - 90-100%)</option>
+                    <option value="3.50">B+ (3.50 - 82-89%)</option>
+                    <option value="3.00">B (3.00 - 74-81%)</option>
+                    <option value="2.50">C+ (2.50 - 66-73%)</option>
+                    <option value="2.00">C (2.00 - 58-65%)</option>
+                    <option value="1.50">D (1.50 - 50-57%)</option>
+                    <option value="0.00">F (0.00 - أقل من 50%)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="courseMajor">التخصص / المسار</label>
+                <select id="courseMajor">
+                    <option value="General">متطلبات عامة</option>
+                    <option value="IT">تقنية معلومات (IT)</option>
+                    <option value="CS">علوم حاسب (CS)</option>
+                </select>
+            </div>
         </div>
-
-        <div id="prevData" class="hidden" style="margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:20px">
-          <div class="two-col">
-            <div class="input-group"><label class="fixed-label" data-i18n="prevGpa">Previous GPA</label><input type="number" id="prevGpa" step="0.01" min="0" max="4" placeholder="2.85" /></div>
-            <div class="input-group"><label class="fixed-label" data-i18n="prevHours">Completed Hours</label><input type="number" id="prevHours" step="1" min="0" placeholder="60" /></div>
-          </div>
-        </div>
-
-        <div class="ruleBox">
-          <span data-i18n="rule">Retake Rule: Latest attempt counts, previous are Replaced.</span>
-          <span class="ruleNote" data-i18n="retakeNote">* Note: According to AOU regulations, retaking a course is not permitted if the previous grade was 'B' or higher.</span>
-          <div class="dupWarning" id="dupBox" style="display:none">⚠️ <span data-i18n="dupWarning">Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.</span></div>
-        </div>
-
-        <div class="thead" style="margin-top:20px">
-          <div data-lang="code">Course Code</div><div data-lang="hours">Credit Hours</div><div data-lang="grade">Grade (100)</div><div data-lang="status">Status</div><div>Del</div>
-        </div>
-        <div id="rowsArea" class="table-container"></div>
-
-        <div class="big-actions no-print">
-          <button class="btn-block btn-yellow" onclick="addRow()" data-i18n="addBtn">+ Add Course</button>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
-            <button class="btn-block btn-outline" onclick="resetAll()" data-i18n="resetBtn">Reset</button>
-            <button class="btn-block btn-yellow" onclick="compute()" data-i18n="calcBtn">Calculate</button>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
-            <button class="btn-block btn-outline" onclick="exportPDF()" data-i18n="pdfBtn">📄 Export PDF</button>
-            <button class="btn-block btn-outline" onclick="shareResult()" data-i18n="shareBtn">📤 Share Result</button>
-          </div>
-        </div>
-
-        <div class="results-area" id="resultsBlock">
-          <div class="res-num" id="semGpa">0.00</div>
-          <div class="res-label" data-lang="semGpa">SEMESTER GPA</div>
-          <div id="semRank" class="res-badge hidden">Excellent</div>
-
-          <div id="cumBlock" class="hidden" style="margin-top:35px;padding-top:25px;border-top:1px dashed var(--border)">
-            <div class="res-num" id="cumGpa" style="font-size:50px">0.00</div>
-            <div class="res-label" data-lang="cumGpa">CUMULATIVE GPA</div>
-            <div id="cumRank" class="res-badge hidden">Excellent</div>
-            <div id="advisingBox" class="ruleBox hidden" style="margin-top:18px"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- WHAT IF -->
-      <div id="whatIfPanel" class="hidden">
-        <div class="info-header">
-          <h2 data-i18n="whatIfTitle">What If?</h2>
-          <p style="color:var(--muted);margin-bottom:0" data-i18n="whatIfDesc">Try a future grade without changing your real calculator data.</p>
-        </div>
-        <div class="scenario-card">
-          <div class="scenario-grid">
-            <div><label class="fixed-label" data-i18n="whatIfCourse">Course (optional)</label><select id="whatIfCourse"></select></div>
-            <div><label class="fixed-label" data-i18n="whatIfHours">Course Hours</label><input type="number" id="whatIfHours" min="1" step="1" value="3" /></div>
-            <div><label class="fixed-label" data-i18n="whatIfGpa">Current Cumulative GPA</label><input type="number" id="whatIfCurrentGpa" min="0" max="4" step="0.01" placeholder="2.85" /></div>
-          </div>
-          <div class="two-col" style="margin-top:15px">
-            <div><label class="fixed-label" data-i18n="whatIfCompleted">Completed Credit Hours</label><input type="number" id="whatIfCompletedHours" min="0" step="1" placeholder="60" /></div>
-            <div><label class="fixed-label" data-i18n="whatIfGrade">Expected Grade</label><select id="whatIfGrade"><option value="4">A — 4.00</option><option value="3.5">B+ — 3.50</option><option value="3">B — 3.00</option><option value="2.5">C+ — 2.50</option><option value="2">C — 2.00</option><option value="1.5">D — 1.50</option><option value="0">F — 0.00</option></select></div>
-          </div>
-          <div class="quick-grades">
-            <button class="quick-grade" data-gp="4">A</button><button class="quick-grade" data-gp="3.5">B+</button><button class="quick-grade" data-gp="3">B</button><button class="quick-grade" data-gp="2.5">C+</button><button class="quick-grade" data-gp="2">C</button><button class="quick-grade" data-gp="1.5">D</button><button class="quick-grade" data-gp="0">F</button>
-          </div>
-        </div>
-        <div class="scenario-result">
-          <div class="metric"><div class="big" id="whatIfResultGpa">0.00</div><small data-i18n="whatIfProjected">Projected CGPA</small></div>
-          <div class="metric"><div class="big" id="whatIfChange">0.00</div><small data-i18n="whatIfChange">Change</small></div>
-          <div class="metric"><div class="big" id="whatIfPoints">4.00</div><small data-i18n="whatIfPoints">Grade Points</small></div>
-        </div>
-        <div id="whatIfAdvice" class="ruleBox" style="margin-top:18px"></div>
-        <div class="action-row no-print"><button class="btn" onclick="copyWhatIf()" data-i18n="copyWhatIf">📋 Copy Scenario</button><button class="btn" onclick="pullFromCumulative()" data-i18n="useCurrentCumulative">↙ Use Cumulative Data</button></div>
-      </div>
+        <button class="btn" onclick="addCourseToSystem()">إضافة المادة للجدول</button>
     </div>
 
-    <!-- STUDY PLAN -->
-    <div class="panel hidden" id="panelPlan">
-      <div class="info-header"><h2 data-i18n="planTitle">Study Plan & Graduation Progress</h2><p style="color:var(--muted)" data-i18n="planDesc">Choose your specialization, then mark completed courses.</p></div>
-      <div class="plan-controls">
-        <div><label class="fixed-label" data-i18n="planSelectLbl">Specialization</label><select id="planSelect"></select></div>
-        <div><label class="fixed-label" data-i18n="planSearchLbl">Search Course</label><input id="planSearch" placeholder="TM471 / Project" /></div>
-      </div>
-      <div class="plan-summary">
-        <div class="metric"><div class="big" id="planTotalHours">0</div><small data-i18n="planTotal">Plan Hours</small></div>
-        <div class="metric"><div class="big" id="planDoneHours">0</div><small data-i18n="planDone">Completed</small></div>
-        <div class="metric"><div class="big" id="planRemainHours">0</div><small data-i18n="planRemain">Remaining</small></div>
-        <div class="metric"><div class="big" id="planPercent">0%</div><small data-i18n="planProgress">Progress</small></div>
-      </div>
-      <div class="progress-track"><div class="progress-bar" id="planProgressBar"></div></div>
-      <div class="action-row no-print">
-        <button class="btn" onclick="markCalculatorCoursesDone()" data-i18n="markCalcDone">✅ Mark Calculator Courses Completed</button>
-        <button class="btn" onclick="clearPlanDone()" data-i18n="clearPlan">Reset Completed Courses</button>
-      </div>
-      <div id="planList" class="plan-list" style="margin-top:18px"></div>
-    </div>
+    <!-- بطاقة عرض المواد وإدارتها -->
+    <div class="card">
+        <div class="controls-bar">
+            <h2>📋 قائمة المواد المسجلة</h2>
+            <div class="filter-group">
+                <label for="filterMajor" style="margin: 0;">تصفية حسب التخصص:</label>
+                <select id="filterMajor" onchange="renderAppTable()" style="width: 170px;">
+                    <option value="ALL">عرض الكل</option>
+                    <option value="General">متطلبات عامة</option>
+                    <option value="IT">تقنية معلومات (IT)</option>
+                    <option value="CS">علوم حاسب (CS)</option>
+                </select>
+            </div>
+        </div>
 
-    <!-- INFO -->
-    <div class="panel hidden" id="panelInfo">
-      <div class="info-header"><h2 data-i18n="infoTitle">Information & Guide</h2></div>
-      <div class="info-section"><div class="info-title">ℹ️ <span data-i18n="aboutTitle">About</span></div><div class="info-box" data-i18n="aboutText">This tool helps AOU students calculate Semester GPA, forecast Cumulative GPA, test What If scenarios and track study-plan progress.</div></div>
-      <div class="info-section"><div class="info-title">🎓 <span data-i18n="scaleTitle">Grading Scale</span></div>
-        <table class="info-table"><thead><tr><th data-i18n="percentHead">Percentage</th><th data-i18n="pointsHead">Points</th><th data-i18n="gradeHead">Grade</th></tr></thead><tbody>
-          <tr><td>90-100%</td><td>4.00</td><td>A</td></tr><tr><td>82-89%</td><td>3.50</td><td>B+</td></tr><tr><td>74-81%</td><td>3.00</td><td>B</td></tr><tr><td>66-73%</td><td>2.50</td><td>C+</td></tr><tr><td>58-65%</td><td>2.00</td><td>C</td></tr><tr><td>50-57%</td><td>1.50</td><td>D</td></tr><tr><td>Below 50%</td><td>0.00</td><td>F</td></tr>
-        </tbody></table>
-      </div>
-      <div class="info-section"><div class="info-title">🏆 <span data-i18n="ranksTitle">Graduation Ranks & Honors</span></div>
-        <table class="info-table"><thead><tr><th data-i18n="rankHead">Rank</th><th data-i18n="estHead">Estimation</th><th data-i18n="cumHead">Cumulative GPA</th></tr></thead><tbody>
-          <tr><td>1</td><td data-i18n="est1">Excellent</td><td>3.50 – 4.00</td></tr><tr><td>2</td><td data-i18n="est2">Very Good</td><td>2.75 – 3.49</td></tr><tr><td>3</td><td data-i18n="est3">Good</td><td>2.00 – 2.74</td></tr><tr><td>4</td><td data-i18n="est4">Not Graduated</td><td>&lt; 2.00</td></tr>
-        </tbody></table>
-      </div>
-      <div class="info-section"><div class="info-title">📌 <span data-i18n="officialTitle">Official Rules (Student Guide Summary)</span></div>
-        <details><summary data-i18n="warningQ">Academic Warning (Bachelor)</summary><div class="faq-content" data-i18n="warningA"></div></details>
-        <details><summary data-i18n="graduationQ">Graduation Requirement (Bachelor)</summary><div class="faq-content" data-i18n="graduationA"></div></details>
-        <details><summary data-i18n="failQ">Failing Status Codes</summary><div class="faq-content" data-i18n="failA"></div></details>
-      </div>
-      <div class="info-section"><div class="info-title">📚 <span data-i18n="sourceTitle">Study Plan Source</span></div><div class="info-box" data-i18n="sourceText">The course-plan data included in this version is transcribed from the uploaded Arab Open University advising-plan PDF. Some plans in the source are labeled 2017, 2019 or 2024. Check the latest AOU plan before relying on it for registration.</div></div>
-    </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>المادة</th>
+                        <th>الساعات</th>
+                        <th>النقاط</th>
+                        <th>التقدير</th>
+                        <th>التخصص</th>
+                        <th>الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyContent">
+                    <!-- تُعبأ البيانات تلقائياً عبر الجافاسكربت -->
+                </tbody>
+            </table>
+        </div>
+        <div id="emptyNotice" class="empty-state" style="display: none;">
+            لا توجد مواد مضافة حالياً. ابدأ بإضافة موادك عبر النموذج أعلاه.
+        </div>
 
-    <div class="footer" style="margin-top:50px;padding-bottom:20px">
-      <div style="margin-bottom:12px;opacity:.7">© <span id="yr"></span> AOU Calculator | Unofficial Student Initiative | <span>v2.0.0</span></div>
-      <div style="margin-bottom:6px">Designed & Developed by: <strong style="color:var(--text);font-size:13px">Eng. Homam Ahmad Shaaban</strong></div>
-      <div>Under Supervision of the Dean of FCS: <strong style="color:var(--text);font-size:13px">Dr. Omar Abdulkader</strong></div>
-    </div>
-  </div>
+        <!-- ملخص النتائج -->
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>إجمالي الساعات المجتازة</h3>
+                <div class="value" id="resTotalCredits">0</div>
+            </div>
+            <div class="result-card">
+                <h3>إجمالي النقاط المكتسبة</h3>
+                <div class="value" id="resTotalPoints">0.00</div>
+            </div>
+            <div class="result-card">
+                <h3>المعدل الفصلي (Semester GPA)</h3>
+                <div class="value" id="resSemesterGPA">0.00</div>
+            </div>
+        </div>
 
-  <datalist id="courseSuggestions"></datalist>
+        <div class="actions-bottom">
+            <button class="btn btn-danger" onclick="clearAllData()" style="width: auto;">حذف كافة البيانات</button>
+        </div>
+    </div>
+</div>
 
 <script>
-'use strict';
+    // تهيئة مصفوفة البيانات من التخزين المحلي أو مصفوفة فارغة
+    let coursesData = JSON.parse(localStorage.getItem('aou_complete_courses')) || [];
 
-const STORAGE_KEY = 'aou_gpa_v20';
-const PLAN_STORAGE_KEY = 'aou_gpa_plan_v20';
-let LANG = 'en';
-let MODE = 'current';
-let currentComputed = { semGpa: 0, cumGpa: null, totalHrs: 0, totalPts: 0, rows: [] };
-let PLAN_COMPLETED = {};
+    // دالة إضافة مادة جديدة
+    function addCourseToSystem() {
+        const nameInput = document.getElementById('courseName');
+        const creditsInput = document.getElementById('courseCredits');
+        const gradeSelect = document.getElementById('courseGrade');
+        const majorSelect = document.getElementById('courseMajor');
 
-JSON.parseSafe = function(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; }
-  catch { return fallback; }
-};
+        const courseName = nameInput.value.trim();
+        const credits = parseInt(creditsInput.value);
+        const gradePoints = parseFloat(gradeSelect.value);
+        const major = majorSelect.value;
 
-/*
-  Course-plan data transcribed from the uploaded AOU advising-plan PDF.
-  The PDF contains plans with different document years (2017/2019/2024).
-*/
-const COURSE_PLANS = {
-  'Business Administration — Accounting (English)': { totalHours: 132, sourceYear: 2024, courses: [
-    ['AR111','Arabic Comm. Skills – I',3],['EL111','English Comm. Skills – I',3],['GR101','Self-Learning Skills',3],['TU170','Computing Essentials',3],['BUS101','Introduction to Math for Business',4],
-    ['AR112','Arabic Comm. Skills – II',3],['EL112','English Comm. Skills – II',3],['BUS102','Introduction to Statistics',4],
-    ['BUS110','Introduction to Business Study',8],['LB170','Professional Communication Skills for Business Studies',8],['B124','Fundamentals of Accounting',8],
-    ['B207A','Shaping Business Opportunities A',8],['B291','Financial Accounting',8],['B207B','Shaping Business Opportunities B',8],['B292','Management Accounting',8],
-    ['BUS310','Strategic Management',8],['ACC300','Accounting Information system',4],['ACC302','Auditing Theory and Practice',4],['B326','Advanced financial Accounting',8],['B392','Advanced Management Accounting',8],['BAS400','Applied Studies for Business Students',4]
-  ]},
-  'Business Administration — Accounting (Arabic)': { totalHours: 129, sourceYear: 2024, courses: [
-    ['AR111','مهارات الاتصال باللغة العربية (1)',3],['EL099E','مهارات الاتصال باللغة الانجليزية (1)',3],['GR101','مهارات التعلم الذاتي',3],['201ECON','مدخل الى العلوم الاقتصادية (1)',3],['201ACCT','مبادئ المحاسبة المالية (1)',3],['201MATH','الرياضيات للعلوم الإدارية والاقتصادية',3],
-    ['AR112','مهارات الاتصال باللغة العربية (2)',3],['EL111E','مهارات الاتصال باللغة الانجليزية (2)',3],['TU170','التعلم عن طريق الانترنت',3],['202ECON','مدخل الى العلوم الاقتصادية (2)',3],['202ACCT','مبادئ المحاسبة المالية (2)',3],['201STAT','الإحصاء للعلوم الإدارية والاقتصادية',3],
-    ['201MGT','مبادئ الإدارة (1)',3],['320ACCT','المحاسبة المتوسطة (1)',3],['307ACCT','المحاسبة الحكومية',3],['ACCT202','تمويل (1)',3],['301LAW','البيئة القانونية للأعمال',3],['ELECTIVE-BA','متطلب جامعة اختياري',3],
-    ['202MGT','مبادئ الإدارة (2) - اختياري',3],['201MIS','نظم المعلومات الإدارية',3],['322ACCT','المحاسبة المتوسطة (2)',3],['302FIN','تمويل (2) - اختياري',3],['201MKT','مبادئ التسويق - اختياري',3],['ACCT202-COMP','مهارات الحاسوب وتطبيقاته في المحاسبة',3],
-    ['305ACCT','محاسبة تكاليف',3],['301ACCT','نظم المعلومات المحاسبية',3],['330ACCT','تحليل القوائم المالية',3],['ACCT322','محاسبة ضريبة وزكاة',3],['MGT301','بحوث العمليات (1)',3],['350ACCT','محاسبة البنوك والتأمين',3],
-    ['ACCT305','المحاسبة الإدارية',3],['311ACCT','تدقيق نظم المعلومات المحاسبية',3],['345ACCT','محاسبة شركات',3],['413ACCT','معايير المحاسبة الدولية',3],['420ACCT','مواضيع متخصصة في المحاسبة',3],['412ACCT','المعايير الدولية للتدقيق',3],
-    ['ACCT403','المحاسبة المالية المتقدمة - اختياري',3],['401ACCT','نظرية المحاسبة',3],['402ACCT','التدقيق والمراجعة',3],['430/6ACCT','التدريب الميداني',6]
-  ]},
-  'Business Administration — Marketing': { totalHours: 132, sourceYear: 2024, courses: [
-    ['AR111','Arabic Comm. Skills – I',3],['EL111','English Comm. Skills – I',3],['GR101','Self-Learning Skills',3],['TU170','Computing Essentials',3],['BUS101','Introduction to Math for Business',4],
-    ['AR112','Arabic Comm. Skills – II',3],['EL112','English Comm. Skills – II',3],['BUS102','Introduction to Statistics',4],['BUS110','Introduction to Business Study',8],['LB170','Professional Communication Skills for Business Studies',8],
-    ['B122','Introduction to Retail Management and Marketing',8],['B207A','Shaping Business Opportunities A',8],['B205A','Exploring Innovation and Entrepreneurship A',8],['B207B','Shaping Business Opportunities B',8],['B205B','Exploring Innovation and Entrepreneurship B',8],
-    ['BUS310','Strategic Management',8],['B324','Marketing and Society',8],['B327','Sustainable Enterprise and Innovation',8],['MKT331','Digital Marketing',4],['MKT332','Service Marketing',4],['BAS400','Applied Studies for Business Students',4]
-  ]},
-  'Business Administration — Systems': { totalHours: 132, sourceYear: 2024, courses: [
-    ['AR111','Arabic Comm. Skills – I',3],['EL111','English Comm. Skills – I',3],['GR101','Self-Learning Skills',3],['TU170','Computing Essentials',3],['BUS101','Introduction to Math for Business',4],
-    ['AR112','Arabic Comm. Skills – II',3],['EL112','English Comm. Skills – II',3],['BUS102','Introduction to Statistics',4],['BUS110','Introduction to Business Study',8],['LB170','Professional Communication Skills for Business Studies',8],
-    ['B123','Management Practice',8],['B207A','Shaping Business Opportunities A',8],['SYS210','Managing Technology and Innovation',8],['B207B','Shaping Business Opportunities B',8],['SYS280','Principles and Practice of Systems’ Thinking',8],
-    ['BUS310','Strategic Management',8],['SYS380','Managing Systems Complexity',8],['B325','Managing across Organizational and Cultural Boundaries',8],['B327','Sustainable Enterprise and Innovation',8],['BAS400','Applied Studies for Business Students',4]
-  ]},
-  'Executive Secretarial Program': { totalHours: 128, sourceYear: 2024, courses: [
-    ['BDF106','Introduction to administrative and office systems',3],['DF-101','Reading for the Deaf and hearing-Impaired',3],['DF102','Islamic Education',3],['DF103','Arabic Language Skills (1)',3],['DF104','Self-Learning Skills',3],['DF105','Deaf Education: History and Directions',3],
-    ['DF110','Employing Technology in Deaf Education',3],['DF111','Arabic Language Skills (2)',3],['DF112','Communication Skills in English Language (1)',3],['TDF115','Computer Components Maintenance (1)',3],
-    ['BDF206','Office Applications (1)',3],['DF201','Writing communication skills (1)',3],['DF202','Arabic Language Skills (3)',3],['DF203','Communication Skills in English Language (2)',3],['DF204','Introduction to the Deaf Habilitating',3],
-    ['DF210','Writing communication skills (2)',3],['DF211','Arabic Language Skills (4)',3],['DF213','National Education',3],['DF214','Language development and functional Oral language',3],['TDF216','Advanced Computer Maintenance (2)',3],
-    ['DF302','Arabic Language Skills (5)',3],['DF303','Translation of Terms and Texts',3],['DF304','The Computer and its Applications in the Working Field',3],['DF305','Professional and Functional Working Environment',3],['DF306','Writing Communication Skills: Professional and Functional Appl',3],
-    ['DF310','Arabic Language Skills (6)',3],['DF311','Instructional strategies',3],['DF312','Issues and Trends in Deaf Society',3],['DF313','Mathematics\' Applications in the Working Field',3],['DF314','Labor Laws and Ethics',3],['DF315','The Community Services',3],
-    ['BDF406','Office and administrative applications',3],['DF401','Professional and Career Selection for the deaf and Hearing-Imp',3],['DF402','Arabic Language Skills (7)',3],['DF404','Deaf Theater',3],['DF-405','Project Management',3],['DF410','Internship',12],
-    ['DF-212','Developmental Psychology',2],['DF-215','Introduction to Science of Interpretation',2],['DF-301','Psychological Counseling and Guidance',2],['DF-403','Family Empowerment',2],
-    ['DF-113','Health and Food',2],['DF-114','Hearing Science',2],['DF-205','Educational Arts',2]
-  ]},
-  'IT & Computing — Information Technology': { totalHours: null, sourceYear: 2019, courses: [
-    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM103','Introduction to Computing and Information Technology I',4],['MT131','Discrete Mathematics',4],
-    ['TM105','Introduction to Programming',4],['MT132','Linear Algebra',4],['TM111','Introduction to Computing and Information Technology II',8],['TM112','Communication and Information Technologies-A',8],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],
-    ['T215A','ITC, Project-A',8],['T215B','ITC, Project-B',8],['TM351','Communication and Information Technologies-B',8],['TM354','Software Engineering',8],['TM355','Advanced Networking',8],['TM471-A','ITC, Project-A',4],['TM471-B','ITC, Project-B',4],['CAS400','Applied Studies For Computing Students',4]
-  ]},
-  'IT & Computing — Computer Science': { totalHours: null, sourceYear: 2019, courses: [
-    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],['TM103','Introduction to Computing and Information Technology I',4],
-    ['TM111','Introduction to Computing and Information Technology II',8],['MT132','Linear Algebra',4],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],['TM112','Computer Organization and Architecture',8],
-    ['TM240','Computer Graphics and Multimedia',4],['TM298','Data Management and Analysis',4],['TM354','Software Engineering',8],['TM366','Artificial Intelligence',8],['T227','Change, Strategy and Project at Work',8],['TM471-A','CS, Project-A',4],['TM471-B','CS, Project-B',8],['CAS400','Applied Studies For Computing Students',4]
-  ]},
-  'IT & Computing — Computing with Business': { totalHours: null, sourceYear: 2019, courses: [
-    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],['TM103','Introduction to Computing and Information Technology I',4],
-    ['BUS110','Introduction to Business',8],['TM111','Introduction to Computing and Information Technology II',8],['MT132','Linear Algebra',4],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],
-    ['B207A','Shaping business opportunities A',8],['B207B','Shaping business opportunities B',8],['TM352','Web, Mobile and Cloud Technologies',8],['BUS310','Strategic Management',8],['TM471-A','CwB Project-A',4],['TM471-B','CwB Project-B',4],['CAS400','Applied Studies For Computing Students',4]
-  ]},
-  'IT & Computing — Networking and Security': { totalHours: null, sourceYear: 2019, courses: [
-    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM103','Introduction to Computing and Information Technology I',4],['MT131','Discrete Mathematics',4],
-    ['TM105','Introduction to Programming',4],['TM111','Introduction to Computing and Information Technology II',8],['MT132','Linear Algebra',4],['TM112','Cisco Networking (CCNA)-A',8],['M251','Object-Oriented Programming using Java',8],
-    ['TM352','Advanced Networking',8],['TM354','Web, Mobile and Cloud Technologies',8],['TM355','Cisco Networking (CCNA)-B',8],['TM356','Applied Network Security',8],['T227','Change, Strategy and Project at Work',8],['TM471-A','N&S, Project-A',4],['TM471-B','N&S, Project-B',4],['CAS400','Applied Studies For Computing Students',4]
-  ]},
-  'IT & Computing — Web Development': { totalHours: null, sourceYear: 2019, courses: [
-    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],['TM103','Introduction to Computing and IT (I)',4],
-    ['TM111','Introduction to Computing and IT (II)',8],['MT132','Linear Algebra',4],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],
-    ['TM354','Software Engineering',8],['TT284','Web Technologies',8],['T227','Change, Strategy and Project at Work',8],['TM352','Web, Mobile and Cloud Technologies',8],['TM356','Interaction Design and the User Experience',8],['WD-A','WD, Project-A',8],['WD-B','WD, Project-B',8],['CAS400','Applied Studies For Computing Students',4]
-  ]},
-  'English Language & Literature': { totalHours: 129, sourceYear: 2017, courses: [
-    ['AR111','Communication Skills in Arabic I',3],['EL111','Communication Skills in English - Intermediate',3],['TU170','Learning On-Line',3],['EL117','Writing',4],['GR101/GR101EL','Self-Learning Skills',3],
-    ['AR112','Communication Skills in Arabic II',3],['EL112','Communication Skills in English - Upper Intermediate',3],['EL120','English phonetics and Linguistics',4],['EL121N','Literary appreciation and Critique',4],['FR101/GR115','French for Beginners / Current International Issues and problems',3],
-    ['AA100A','Arts of Past & Present (I)',8],['AA100B','Arts of Past & Present (II)',8],['U214A','Worlds of English (I)',8],['U214B','Worlds of English (II)',8],['EL119','Oral Presentation Skills',4],['EL118','Reading',4],
-    ['A230A','Reading and Studying Literature (I)',8],['A230B','Reading and Studying Literature (II)',8],['E304A','Exploring English Grammar I',8],['E304B','Exploring English Grammar I',8],['EL122','Writing Research',4],['EA300A','Children’s Literature I',8],['EA300B','Children’s Literature II',8],['LAS400','Applied studies for English Students',4]
-  ]}
-};
+        if (!courseName) {
+            alert('الرجاء إدخال اسم أو رمز المادة بشكل صحيح.');
+            nameInput.focus();
+            return;
+        }
 
-const TEXT = {
-  en:{calcTab:'Calculator',planTab:'Study Plan',infoTab:'Info',currBtn:'Current',expBtn:'Cumulative',whatIfBtn:'What If',addBtn:'+ Add Course',resetBtn:'Reset',calcBtn:'Calculate',pdfBtn:'📄 Export PDF',shareBtn:'📤 Share Result',hours:'Credit Hours',grade:'Grade (100)',code:'Course Code',status:'Status',semGpa:'SEMESTER GPA',cumGpa:'CUMULATIVE GPA',counted:'Counted',dup:'Replaced',rule:'Retake Rule: Latest attempt counts, previous are Replaced.',retakeNote:'* Note: According to AOU regulations, retaking a course is not permitted if the previous grade was B or higher.',dupWarning:'Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.',prevGpa:'Previous GPA',prevHours:'Completed Hours',summerLbl:'Is this a Summer semester?',summerNo:'No',summerYes:'Yes',selectedPlanLbl:'Study Plan (optional)',noPlan:'No plan selected',infoTitle:'Information & Guide',aboutTitle:'About',aboutText:'This tool helps AOU students calculate Semester GPA, forecast Cumulative GPA, test What If scenarios and track study-plan progress.',scaleTitle:'Grading Scale',gradeHead:'Grade',pointsHead:'Points',percentHead:'Percentage',ranksTitle:'Graduation Ranks & Honors',rankHead:'Rank',estHead:'Estimation',cumHead:'Cumulative GPA',est1:'Excellent',est2:'Very Good',est3:'Good',est4:'Not Graduated',officialTitle:'Official Rules (Student Guide Summary)',warningQ:'Academic Warning (Bachelor)',warningA:'• Warning applies after completing 12 credit hours or more.<br>• If CGPA < 2.00 → warning at the end of any semester (except summer).<br>• Dismissal may occur if warnings reach 5 in 5 consecutive semesters.',graduationQ:'Graduation Requirement (Bachelor)',graduationA:'• Bachelor degree is awarded after passing all courses in the study plan<br>• AND CGPA must be not less than 2.00 out of 4.00.',failQ:'Failing Status Codes',failA:'• FC: Fail in Continuous Assessment (CA) below 30% of CA grade.<br>• FA: Fail due to absenteeism with no excuse.<br>• FF: Fail in Final Exam below 40% of Final grade.<br>• F: Total (CA + Final) below 50%.<br>Note: Fail marks are counted within semester and cumulative GPA.',whatIfTitle:'What If?',whatIfDesc:'Try a future grade without changing your real calculator data.',whatIfCourse:'Course (optional)',whatIfHours:'Course Hours',whatIfGpa:'Current Cumulative GPA',whatIfCompleted:'Completed Credit Hours',whatIfGrade:'Expected Grade',whatIfProjected:'Projected CGPA',whatIfChange:'Change',whatIfPoints:'Grade Points',copyWhatIf:'📋 Copy Scenario',useCurrentCumulative:'↙ Use Cumulative Data',planTitle:'Study Plan & Graduation Progress',planDesc:'Choose your specialization, then mark completed courses.',planSelectLbl:'Specialization',planSearchLbl:'Search Course',planTotal:'Plan Hours',planDone:'Completed',planRemain:'Remaining',planProgress:'Progress',markCalcDone:'✅ Mark Calculator Courses Completed',clearPlan:'Reset Completed Courses',sourceTitle:'Study Plan Source',sourceText:'The course-plan data included in this version is transcribed from the uploaded Arab Open University advising-plan PDF. Some plans in the source are labeled 2017, 2019 or 2024. Check the latest AOU plan before relying on it for registration.'},
-  ar:{calcTab:'الحاسبة',planTab:'الخطة الدراسية',infoTab:'معلومات',currBtn:'فصلي',expBtn:'تراكمي',whatIfBtn:'ماذا لو؟',addBtn:'+ إضافة مادة',resetBtn:'مسح',calcBtn:'احسب',pdfBtn:'📄 تصدير PDF',shareBtn:'📤 مشاركة النتيجة',hours:'عدد الساعات',grade:'الدرجة (من 100)',code:'كود المادة',status:'الحالة',semGpa:'المعدل الفصلي',cumGpa:'المعدل التراكمي',counted:'محتسب',dup:'مستبدل',rule:'قاعدة الإعادة: يُحسب آخر محاولة للمقرر فقط، والمحاولات السابقة تُستبدل.',retakeNote:'* ملاحظة: حسب اللوائح، لا يُسمح بإعادة المقرر إذا كانت الدرجة السابقة B أو أعلى.',dupWarning:'تنبيه: التكرار هنا يعامل كإعادة للمقرر لأغراض الحساب فقط.',prevGpa:'المعدل التراكمي السابق',prevHours:'الساعات المنجزة',summerLbl:'هل هذا الفصل صيفي؟',summerNo:'لا',summerYes:'نعم',selectedPlanLbl:'الخطة الدراسية (اختياري)',noPlan:'لم يتم اختيار خطة',infoTitle:'معلومات وإرشادات',aboutTitle:'حول الحاسبة',aboutText:'هذه الأداة تساعد طلاب AOU على حساب المعدل الفصلي والتراكمي، وتجربة ماذا لو، ومتابعة الخطة الدراسية.',scaleTitle:'سلم الدرجات',gradeHead:'الدرجة',pointsHead:'النقاط',percentHead:'النسبة',ranksTitle:'التقديرات',rankHead:'الرتبة',estHead:'التقدير',cumHead:'المعدل التراكمي',est1:'ممتاز',est2:'جيد جداً',est3:'جيد',est4:'لا يتم تخريجه',officialTitle:'ملخص اللوائح (من دليل الطالب)',warningQ:'الإنذار الأكاديمي (بكالوريوس)',warningA:'• يطبق الإنذار بعد إنجاز 12 ساعة أو أكثر.<br>• إذا CGPA أقل من 2.00 → إنذار بنهاية أي فصل (ما عدا الصيفي).<br>• قد يحدث فصل أكاديمي إذا وصلت الإنذارات 5 في 5 فصول متتالية.',graduationQ:'شرط التخرج (بكالوريوس)',graduationA:'• يُمنح البكالوريوس بعد النجاح في جميع مقررات الخطة<br>• وبشرط ألا يقل CGPA عن 2.00 من 4.00.',failQ:'رموز الرسوب',failA:'• FC: رسوب في أعمال السنة (CA) أقل من 30% من درجة CA.<br>• FA: رسوب بسبب الغياب بدون عذر.<br>• FF: رسوب في النهائي أقل من 40% من درجة النهائي.<br>• F: مجموع (CA + النهائي) أقل من 50%.<br>ملاحظة: الرسوب يُحتسب في الفصلي والتراكمي.',whatIfTitle:'ماذا لو؟',whatIfDesc:'جرّب درجة مستقبلية بدون تغيير بيانات الحاسبة الحقيقية.',whatIfCourse:'المادة (اختياري)',whatIfHours:'ساعات المادة',whatIfGpa:'المعدل التراكمي الحالي',whatIfCompleted:'الساعات المنجزة',whatIfGrade:'الدرجة المتوقعة',whatIfProjected:'المعدل التراكمي المتوقع',whatIfChange:'التغير',whatIfPoints:'نقاط الدرجة',copyWhatIf:'📋 نسخ السيناريو',useCurrentCumulative:'↙ استخدام بيانات التراكمي',planTitle:'الخطة الدراسية ونسبة التخرج',planDesc:'اختر تخصصك ثم حدد المواد التي أنجزتها.',planSelectLbl:'التخصص',planSearchLbl:'بحث عن مادة',planTotal:'ساعات الخطة',planDone:'المنجزة',planRemain:'المتبقية',planProgress:'الإنجاز',markCalcDone:'✅ تحديد مواد الحاسبة كمنجزة',clearPlan:'مسح المواد المنجزة',sourceTitle:'مصدر الخطط الدراسية',sourceText:'بيانات الخطط في هذا الإصدار منسوخة من ملف خطط الجامعة العربية المفتوحة المرفوع. الملف يتضمن خططًا موضحة بالسنوات 2017 و2019 و2024. تحقق من أحدث خطة منشورة من الجامعة قبل الاعتماد عليها للتسجيل.'}
-};
+        if (isNaN(credits) || credits <= 0) {
+            alert('الرجاء التأكد من صحة عدد الساعات المعتمدة.');
+            creditsInput.focus();
+            return;
+        }
 
-function t(k){ return TEXT[LANG][k] || k; }
-function applyI18n(){ document.querySelectorAll('[data-i18n]').forEach(el=>{ const key=el.dataset.i18n; if(TEXT[LANG][key]!==undefined) el.innerHTML=TEXT[LANG][key]; }); }
+        const newCourseObj = {
+            id: Date.now(),
+            name: courseName,
+            credits: credits,
+            points: gradePoints,
+            gradeText: getGradeLetterString(gradePoints),
+            major: major
+        };
 
-function populatePlanSelects(){
-  const options = Object.keys(COURSE_PLANS).map(name=>`<option value="${escapeAttr(name)}">${escapeHtml(displayPlanName(name))}</option>`).join('');
-  document.getElementById('planSelect').innerHTML = options;
-  document.getElementById('calcPlanSelect').innerHTML = `<option value="">${t('noPlan')}</option>` + options;
-}
-function displayPlanName(name){ return name; }
-function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-function escapeAttr(s){return escapeHtml(s);}
+        coursesData.push(newCourseObj);
+        persistAndRefresh();
 
-function getGradeInfo(score){
-  if(score>=90)return{points:4,letter:'A'}; if(score>=82)return{points:3.5,letter:'B+'}; if(score>=74)return{points:3,letter:'B'}; if(score>=66)return{points:2.5,letter:'C+'}; if(score>=58)return{points:2,letter:'C'}; if(score>=50)return{points:1.5,letter:'D'}; return{points:0,letter:'F'};
-}
-function gradeFromPoints(points){ return ({4:'A',3.5:'B+',3:'B',2.5:'C+',2:'C',1.5:'D',0:'F'})[String(points)] || 'A'; }
-function showRank(elId,gpa,type){
-  const el=document.getElementById(elId); if(!el)return; el.classList.remove('hidden');
-  if(gpa>=3.5){el.textContent=LANG==='ar'?'ممتاز':'Excellent';return} if(gpa>=2.75){el.textContent=LANG==='ar'?'جيد جداً':'Very Good';return} if(gpa>=2){el.textContent=LANG==='ar'?'جيد':'Good';return}
-  el.textContent=type==='cum'?(LANG==='ar'?'لا يتم تخريجه (CGPA < 2.00)':'Not Graduated (CGPA < 2.00)'):(LANG==='ar'?'ضعيف (GPA < 2.00)':'Weak (GPA < 2.00)');
-}
+        // إعادة تعيين حقل الاسم فقط لتسهيل الإدخال السريع والمتتالي
+        nameInput.value = '';
+        nameInput.focus();
+    }
 
-function rowTemplate(data={}){
-  const div=document.createElement('div'); div.className='trow';
-  const code=data.code??'', score=data.score??'', hours=String(data.hours||3);
-  div.innerHTML=`
-    <div class="cell-del"><button class="btn-del" type="button" aria-label="Delete" onclick="removeRow(this)">✕</button></div>
-    <div class="mobile-wrapper">
-      <div class="cell-half cell-hours"><span class="mobile-label">${escapeHtml(t('hours'))}</span><select data-act="hours"><option value="3" ${hours==='3'?'selected':''}>3</option><option value="4" ${hours==='4'?'selected':''}>4</option><option value="8" ${hours==='8'?'selected':''}>8</option><option value="6" ${hours==='6'?'selected':''}>6</option><option value="2" ${hours==='2'?'selected':''}>2</option></select></div>
-      <div class="cell-half cell-grade"><span class="mobile-label">${escapeHtml(t('grade'))}</span><input type="text" inputmode="decimal" data-act="score" placeholder="88" value="${escapeAttr(score)}"><span class="grade-preview"></span></div>
-    </div>
-    <div class="cell-code"><span class="mobile-label">${escapeHtml(t('code'))}</span><input type="text" list="courseSuggestions" data-act="code" class="code-input" placeholder="GR101" value="${escapeAttr(code)}"><div class="course-hint" data-act="hint"></div></div>
-    <div class="cell-status"><span class="badge ok" data-act="status">---</span></div>`;
-  const scoreInput=div.querySelector('[data-act="score"]'), codeInput=div.querySelector('[data-act="code"]'), selectHrs=div.querySelector('[data-act="hours"]');
-  scoreInput.addEventListener('input',()=>{validateRow(div);updatePreview(scoreInput);saveState();compute();});
-  codeInput.addEventListener('input',()=>{applyCourseAutofill(div);validateRow(div);saveState();compute();});
-  codeInput.addEventListener('change',()=>{applyCourseAutofill(div);saveState();compute();});
-  selectHrs.addEventListener('change',()=>{saveState();compute();});
-  if(score!=='') updatePreview(scoreInput); applyCourseAutofill(div); if(code||score!=='') validateRow(div); return div;
-}
-function applyCourseAutofill(row){
-  const inp=row.querySelector('[data-act="code"]'), hint=row.querySelector('[data-act="hint"]'), code=inp.value.trim().toUpperCase();
-  const matches=findCourses(code);
-  if(matches.length===1 && normalizeCode(matches[0][0])===normalizeCode(code)){
-    const c=matches[0]; hint.textContent=LANG==='ar'?`${c[1]} · ${c[2]} ساعات`:`${c[1]} · ${c[2]} credits`;
-    const h=row.querySelector('[data-act="hours"]'); if(['2','3','4','6','8'].includes(String(c[2]))) h.value=String(c[2]);
-  }else if(matches.length){ hint.textContent=(LANG==='ar'?`${matches.length} اقتراحات`:`${matches.length} suggestions`); } else hint.textContent='';
-}
-function normalizeCode(s){return String(s).toUpperCase().replace(/\s+/g,'')}
-function findCourses(query){
-  const q=normalizeCode(query); if(!q)return[]; const map=new Map();
-  Object.values(COURSE_PLANS).forEach(p=>p.courses.forEach(c=>map.set(c[0],c)));
-  return [...map.values()].filter(c=>normalizeCode(c[0]).includes(q)||String(c[1]).toLowerCase().includes(String(query).toLowerCase())).slice(0,20);
-}
-function populateDatalist(){
-  const map=new Map(); Object.values(COURSE_PLANS).forEach(p=>p.courses.forEach(c=>map.set(c[0],c)));
-  document.getElementById('courseSuggestions').innerHTML=[...map.values()].map(c=>`<option value="${escapeAttr(c[0])}" label="${escapeAttr(c[0]+' — '+c[1])}"></option>`).join('');
-}
-function validateRow(row){ const inp=row.querySelector('[data-act="score"]'),v=inp.value.trim(),n=parseFloat(v); if(v===''){inp.classList.remove('input-error');return} if(Number.isNaN(n)||n<0||n>100)inp.classList.add('input-error');else inp.classList.remove('input-error'); }
-function updatePreview(input){ const p=input.nextElementSibling,v=input.value,n=parseFloat(v); if(v.trim()===''||Number.isNaN(n)||n<0||n>100){p.textContent='';p.className='grade-preview';return} const r=getGradeInfo(n); p.className='grade-preview show '+(r.points>=3.5?'excellent':r.points>=2?'good':r.points>=1.5?'warn':'bad');p.textContent=`${r.letter} | ${r.points.toFixed(2)}`; }
-function addRow(data){document.getElementById('rowsArea').appendChild(rowTemplate(data));}
-function removeRow(btn){btn.closest('.trow').remove();if(!document.getElementById('rowsArea').children.length)addRow();saveState();compute();}
+    // دالة حذف مادة محددة بواسطة المعرف الفريد
+    function removeCourse(id) {
+        if (confirm('هل أنت متأكد من رغبتك في حذف هذه المادة؟')) {
+            coursesData = coursesData.filter(item => item.id !== id);
+            persistAndRefresh();
+        }
+    }
 
-function readCalculatorRows(){
-  return Array.from(document.getElementById('rowsArea').children).map((row,idx)=>{
-    validateRow(row); let score=parseFloat(row.querySelector('[data-act="score"]').value); if(Number.isNaN(score)||score<0||score>100)score=NaN;
-    return {idx,row,code:row.querySelector('[data-act="code"]').value.trim().toUpperCase(),score,hours:parseFloat(row.querySelector('[data-act="hours"]').value)};
-  });
-}
-function computeStandard(){
-  const parsed=readCalculatorRows(),lastSeen=new Map(); parsed.forEach(p=>{if(p.code)lastSeen.set(normalizeCode(p.code),p.idx)});
-  let totalPts=0,totalHrs=0,hasDuplicate=false;
-  parsed.forEach(p=>{const status=p.row.querySelector('[data-act="status"]'); if(Number.isNaN(p.score)||Number.isNaN(p.hours)){status.textContent='---';status.className='badge';return}
-    let latest=true;if(p.code){latest=lastSeen.get(normalizeCode(p.code))===p.idx;if(!latest)hasDuplicate=true}
-    if(latest){const gp=getGradeInfo(p.score).points;totalHrs+=p.hours;totalPts+=gp*p.hours;status.textContent=t('counted');status.className='badge ok'}
-    else{status.textContent=t('dup');status.className='badge dup'}
-  });
-  document.getElementById('dupBox').style.display=hasDuplicate?'block':'none';
-  const semGpa=totalHrs?totalPts/totalHrs:0; let cumGpa=null;
-  document.getElementById('semGpa').textContent=semGpa.toFixed(2);showRank('semRank',semGpa,'sem');
-  if(MODE==='expected'){
-    const pG=Math.min(4,Math.max(0,parseFloat(document.getElementById('prevGpa').value)||0)),pH=Math.max(0,parseFloat(document.getElementById('prevHours').value)||0); const finalHrs=totalHrs+pH,finalPts=totalPts+pG*pH;cumGpa=finalHrs?finalPts/finalHrs:0;
-    document.getElementById('cumGpa').textContent=cumGpa.toFixed(2);showRank('cumRank',cumGpa,'cum');updateAdvisingBox(cumGpa, pH);
-  }
-  currentComputed={semGpa,cumGpa,totalHrs,totalPts,rows:parsed}; return currentComputed;
-}
-function compute(){
-  if(MODE==='whatif'){computeWhatIf();return}
-  computeStandard(); saveState();
-}
-function updateAdvisingBox(cgpa,completedHours){
-  const box=document.getElementById('advisingBox'); if(!box)return; if(MODE!=='expected'){box.classList.add('hidden');return} box.classList.remove('hidden');
-  const isSummer=document.getElementById('isSummer').value==='yes',notEligible=cgpa<2,warning=!isSummer&&completedHours>=12&&cgpa<2;
-  const near=!warning&&cgpa>=2&&cgpa<2.2;
-  const source=LANG==='ar'?'حسب دليل الطالب – الجامعة العربية المفتوحة (إرشادي فقط)':'According to AOU Student Guide (Guidance Only)';
-  if(notEligible){box.innerHTML=`<div><span style="color:var(--danger);font-weight:900">❌ ${LANG==='ar'?'غير مؤهل للتخرج':'Not Eligible to Graduate'}</span>${warning?`<br><span style="color:var(--warn);font-weight:900">⚠️ ${LANG==='ar'?'إنذار أكاديمي':'Academic Warning'}</span>`:''}<br><small>${source}</small></div>`}
-  else if(near){box.innerHTML=`<div><span style="color:var(--warn);font-weight:900">⚠️ ${LANG==='ar'?'تنبيه: المعدل قريب من 2.00':'Attention: GPA is close to 2.00'}</span><br><small>${source}</small></div>`}
-  else box.innerHTML=`<div><span style="color:var(--ok);font-weight:900">✅ ${LANG==='ar'?'وضع أكاديمي طبيعي':'Good Standing'}</span><br><small>${source}</small></div>`;
-}
+    // حذف كافة البيانات المخزنة
+    function clearAllData() {
+        if (confirm('تحذير: سيتم حذف جميع المواد المدخلة نهائياً. هل أنت متأكد؟')) {
+            coursesData = [];
+            persistAndRefresh();
+        }
+    }
 
-function setMode(m){MODE=m;document.getElementById('btnCurr').classList.toggle('active',m==='current');document.getElementById('btnExp').classList.toggle('active',m==='expected');document.getElementById('btnWhatIf').classList.toggle('active',m==='whatif');
-  const standard=m!=='whatif';document.getElementById('standardCalc').classList.toggle('hidden',!standard);document.getElementById('whatIfPanel').classList.toggle('hidden',!(!standard));
-  document.getElementById('prevData').classList.toggle('hidden',m!=='expected');document.getElementById('cumBlock').classList.toggle('hidden',m!=='expected');
-  if(m==='whatif'){loadWhatIfFromState();computeWhatIf()}else computeStandard();saveState();
-}
+    // حفظ البيانات في LocalStorage وتحديث العرض
+    function persistAndRefresh() {
+        localStorage.setItem('aou_complete_courses', JSON.stringify(coursesData));
+        renderAppTable();
+    }
 
-function populateWhatIfCourse(){
-  const rows=readCalculatorRows().filter(r=>r.code); const sel=document.getElementById('whatIfCourse'); const opts=['<option value="">'+(LANG==='ar'?'مادة جديدة / اختر يدويًا':'New / choose manually')+'</option>'];
-  rows.forEach(r=>{const found=findCourses(r.code).find(c=>normalizeCode(c[0])===normalizeCode(r.code)); const name=found?found[1]:r.code; opts.push(`<option value="${escapeAttr(r.code)}" data-hours="${r.hours}">${escapeHtml(r.code+' — '+name)}</option>`)});sel.innerHTML=opts.join('');
-}
-function loadWhatIfFromState(){
-  populateWhatIfCourse(); const st=JSON.parseSafe(localStorage.getItem(STORAGE_KEY),{}); if(st.whatIf){document.getElementById('whatIfCurrentGpa').value=st.whatIf.gpa||'';document.getElementById('whatIfCompletedHours').value=st.whatIf.hours||'';document.getElementById('whatIfHours').value=st.whatIf.courseHours||3;document.getElementById('whatIfGrade').value=String(st.whatIf.grade??4);document.getElementById('whatIfCourse').value=st.whatIf.code||''}
-}
-function pullFromCumulative(){document.getElementById('whatIfCurrentGpa').value=document.getElementById('prevGpa').value;document.getElementById('whatIfCompletedHours').value=document.getElementById('prevHours').value;computeWhatIf();}
-function computeWhatIf(){
-  const gpa=Math.min(4,Math.max(0,parseFloat(document.getElementById('whatIfCurrentGpa').value)||0)); const done=Math.max(0,parseFloat(document.getElementById('whatIfCompletedHours').value)||0);const hrs=Math.max(0,parseFloat(document.getElementById('whatIfHours').value)||0);const gp=parseFloat(document.getElementById('whatIfGrade').value)||0; const projected=done+hrs>0?((gpa*done)+(gp*hrs))/(done+hrs):0;const delta=projected-gpa;
-  document.getElementById('whatIfResultGpa').textContent=projected.toFixed(2);document.getElementById('whatIfChange').textContent=(delta>=0?'+':'')+delta.toFixed(2);document.getElementById('whatIfPoints').textContent=gp.toFixed(2);
-  const near=projected>=2&&projected<2.2,low=projected<2, msg=low?(LANG==='ar'?'❌ النتيجة المتوقعة أقل من 2.00.':'❌ Projected CGPA is below 2.00.'):near?(LANG==='ar'?'⚠️ المعدل المتوقع قريب من 2.00.':'⚠️ Projected CGPA is close to 2.00.'):(LANG==='ar'?'✅ جرّب درجات أخرى للمقارنة.':'✅ Try other grades to compare the result.');document.getElementById('whatIfAdvice').innerHTML=msg;
-  saveState(); return projected;
-}
-function copyWhatIf(){const g=document.getElementById('whatIfCurrentGpa').value||'0',h=document.getElementById('whatIfCompletedHours').value||'0',hrs=document.getElementById('whatIfHours').value||'3',gp=document.getElementById('whatIfGrade').value||'4',p=document.getElementById('whatIfResultGpa').textContent;const text=LANG==='ar'?`ماذا لو؟\nالمعدل الحالي: ${g}\nالساعات المنجزة: ${h}\nالمادة: ${hrs} ساعات\nالدرجة: ${gradeFromPoints(gp)} (${Number(gp).toFixed(2)})\nالمعدل المتوقع: ${p}`:`What If?\nCurrent GPA: ${g}\nCompleted hours: ${h}\nCourse: ${hrs} credits\nGrade: ${gradeFromPoints(gp)} (${Number(gp).toFixed(2)})\nProjected GPA: ${p}`;navigator.clipboard?.writeText(text).then(()=>showToast(LANG==='ar'?'تم النسخ ✅':'Copied ✅')).catch(()=>showToast(text));}
+    // دالة مطابقة النقاط مع حرف التقدير الرسمي لـ AOU
+    function getGradeLetterString(pts) {
+        if (pts === 4.00) return 'A';
+        if (pts === 3.50) return 'B+';
+        if (pts === 3.00) return 'B';
+        if (pts === 2.50) return 'C+';
+        if (pts === 2.00) return 'C';
+        if (pts === 1.50) return 'D';
+        return 'F';
+    }
 
-function saveState(){
-  const rows=Array.from(document.getElementById('rowsArea').children).map(row=>({code:row.querySelector('[data-act="code"]').value,score:row.querySelector('[data-act="score"]').value,hours:row.querySelector('[data-act="hours"]').value}));
-  localStorage.setItem(STORAGE_KEY,JSON.stringify({mode:MODE,prevGpa:document.getElementById('prevGpa').value,prevHours:document.getElementById('prevHours').value,isSummer:document.getElementById('isSummer').value,rows,lang:LANG,calcPlan:document.getElementById('calcPlanSelect').value,whatIf:{gpa:document.getElementById('whatIfCurrentGpa').value,hours:document.getElementById('whatIfCompletedHours').value,courseHours:document.getElementById('whatIfHours').value,grade:document.getElementById('whatIfGrade').value,code:document.getElementById('whatIfCourse').value}}));
-}
-function restoreState(){
-  const st=JSON.parseSafe(localStorage.getItem(STORAGE_KEY),null); if(!st){addRow();return}
-  LANG=st.lang==='ar'?'ar':'en'; document.documentElement.dir=LANG==='ar'?'rtl':'ltr';document.documentElement.lang=LANG==='ar'?'ar':'en';applyI18n();populatePlanSelects();
-  if(st.prevGpa!==undefined)document.getElementById('prevGpa').value=st.prevGpa;if(st.prevHours!==undefined)document.getElementById('prevHours').value=st.prevHours;if(st.isSummer)document.getElementById('isSummer').value=st.isSummer;if(st.calcPlan)document.getElementById('calcPlanSelect').value=st.calcPlan;
-  document.getElementById('rowsArea').innerHTML='';(st.rows?.length?st.rows:[{}]).forEach(r=>addRow(r));
-  document.getElementById('whatIfCurrentGpa').value=st.whatIf?.gpa||'';document.getElementById('whatIfCompletedHours').value=st.whatIf?.hours||'';document.getElementById('whatIfHours').value=st.whatIf?.courseHours||3;document.getElementById('whatIfGrade').value=String(st.whatIf?.grade??4);
-  applyI18n();updateTableHeaders();setMode(st.mode||'current');
-}
+    // ترجمة التخصص لعرضه بشكل واضح بالعربية
+    function translateMajorName(maj) {
+        if (maj === 'IT') return 'تقنية معلومات';
+        if (maj === 'CS') return 'علوم حاسب';
+        return 'متطلبات عامة';
+    }
 
-function resetAll(){if(confirm(LANG==='ar'?'هل أنت متأكد من مسح جميع الحقول؟':'Clear all fields?')){document.getElementById('rowsArea').innerHTML='';addRow();document.getElementById('prevGpa').value='';document.getElementById('prevHours').value='';document.getElementById('isSummer').value='no';document.getElementById('calcPlanSelect').value='';document.getElementById('semGpa').textContent='0.00';document.getElementById('cumGpa').textContent='0.00';document.getElementById('whatIfCurrentGpa').value='';document.getElementById('whatIfCompletedHours').value='';localStorage.removeItem(STORAGE_KEY);compute();showToast(LANG==='ar'?'تم المسح 🗑️':'Reset Done 🗑️');}}
-function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(showToast._t);showToast._t=setTimeout(()=>el.style.display='none',1800)}
-function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}
-function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem('theme',t)}
-function toggleLang(){LANG=LANG==='en'?'ar':'en';document.documentElement.dir=LANG==='ar'?'rtl':'ltr';document.documentElement.lang=LANG==='ar'?'ar':'en';applyI18n();populatePlanSelects();const st=JSON.parseSafe(localStorage.getItem(STORAGE_KEY),{});if(st.calcPlan)document.getElementById('calcPlanSelect').value=st.calcPlan;populateDatalist();Array.from(document.getElementById('rowsArea').children).forEach(row=>applyCourseAutofill(row));updateTableHeaders();compute();renderPlanList();populateWhatIfCourse();}
-function updateTableHeaders(){document.querySelector('[data-lang="hours"]').textContent=t('hours');document.querySelector('[data-lang="grade"]').textContent=t('grade');document.querySelector('[data-lang="code"]').textContent=t('code');document.querySelector('[data-lang="status"]').textContent=t('status');document.querySelector('[data-lang="semGpa"]').textContent=t('semGpa');document.querySelector('[data-lang="cumGpa"]').textContent=t('cumGpa');Array.from(document.querySelectorAll('.trow')).forEach(row=>{row.querySelector('.cell-hours .mobile-label').textContent=t('hours');row.querySelector('.cell-grade .mobile-label').textContent=t('grade');row.querySelector('.cell-code .mobile-label').textContent=t('code');});}
-function switchTab(tab){document.getElementById('panelCalc').classList.toggle('hidden',tab!=='calc');document.getElementById('panelPlan').classList.toggle('hidden',tab!=='plan');document.getElementById('panelInfo').classList.toggle('hidden',tab!=='info');document.getElementById('tab1').classList.toggle('active',tab==='calc');document.getElementById('tab2').classList.toggle('active',tab==='plan');document.getElementById('tab3').classList.toggle('active',tab==='info');if(tab==='plan')renderPlanList();}
+    // دالة إعادة رسم الجدول وتحديث كافة الحسابات الرياضية للمعدل
+    function renderAppTable() {
+        const tbody = document.getElementById('tableBodyContent');
+        const emptyNotice = document.getElementById('emptyNotice');
+        const filterVal = document.getElementById('filterMajor').value;
 
-function initPlan(){
-  const saved=JSON.parseSafe(localStorage.getItem(PLAN_STORAGE_KEY),{});PLAN_COMPLETED=saved.completed||{};
-  const last=saved.selected||Object.keys(COURSE_PLANS)[0];document.getElementById('planSelect').value=COURSE_PLANS[last]?last:Object.keys(COURSE_PLANS)[0];renderPlanList();
-}
-function currentPlan(){return COURSE_PLANS[document.getElementById('planSelect').value]||null}
-function savePlan(){localStorage.setItem(PLAN_STORAGE_KEY,JSON.stringify({selected:document.getElementById('planSelect').value,completed:PLAN_COMPLETED}))}
-function courseKey(planName,code){return planName+'::'+code}
-function renderPlanList(){const plan=currentPlan();if(!plan)return;const name=document.getElementById('planSelect').value,q=(document.getElementById('planSearch').value||'').toLowerCase().trim();const list=plan.courses.filter(c=>!q||String(c[0]).toLowerCase().includes(q)||String(c[1]).toLowerCase().includes(q));document.getElementById('planList').innerHTML=list.map(c=>{const key=courseKey(name,c[0]),checked=!!PLAN_COMPLETED[key];return `<label class="plan-item"><input type="checkbox" ${checked?'checked':''} data-plan-key="${escapeAttr(key)}"><div class="plan-item-main"><div class="plan-item-code">${escapeHtml(c[0])}</div><div class="plan-item-title">${escapeHtml(c[1])}</div></div><div class="plan-hours">${c[2]}h</div></label>`}).join('');document.querySelectorAll('#planList input[type="checkbox"]').forEach(cb=>cb.addEventListener('change',()=>{PLAN_COMPLETED[cb.dataset.planKey]=cb.checked;savePlan();updatePlanSummary()}));updatePlanSummary();}
-function updatePlanSummary(){const plan=currentPlan();if(!plan)return;const name=document.getElementById('planSelect').value;let total=plan.totalHours; if(!Number.isFinite(total)) total=plan.courses.reduce((s,c)=>s+Number(c[2]||0),0);let done=plan.courses.reduce((s,c)=>s+(PLAN_COMPLETED[courseKey(name,c[0])] ? Number(c[2]||0):0),0);const remain=Math.max(0,total-done),pct=total?Math.min(100,(done/total)*100):0;document.getElementById('planTotalHours').textContent=total;document.getElementById('planDoneHours').textContent=done;document.getElementById('planRemainHours').textContent=remain;document.getElementById('planPercent').textContent=pct.toFixed(0)+'%';document.getElementById('planProgressBar').style.width=pct+'%';}
-function clearPlanDone(){const prefix=document.getElementById('planSelect').value+'::';Object.keys(PLAN_COMPLETED).forEach(k=>{if(k.startsWith(prefix))delete PLAN_COMPLETED[k]});savePlan();renderPlanList();}
-function markCalculatorCoursesDone(){const name=document.getElementById('planSelect').value;const codes=readCalculatorRows().map(r=>normalizeCode(r.code)).filter(Boolean);const plan=currentPlan();plan.courses.forEach(c=>{if(codes.includes(normalizeCode(c[0])))PLAN_COMPLETED[courseKey(name,c[0])]=true});savePlan();renderPlanList();showToast(LANG==='ar'?'تم تحديد المواد المطابقة ✅':'Matching courses marked ✅')}
+        tbody.innerHTML = '';
 
-function exportPDF(){
-  if(MODE==='whatif'){return exportWhatIfPDF()}
-  const jsPDF=window.jspdf?.jsPDF;if(!jsPDF){showToast(LANG==='ar'?'انتظر تحميل PDF ثم جرّب مرة أخرى':'Wait for PDF library to load, then try again');return}
-  const {semGpa,cumGpa,totalHrs,rows}=computeStandard(); const doc=new jsPDF({unit:'pt',format:'a4'});
-  const title=LANG==='ar'?'AOU GPA Calculator — تقرير نتيجة':'AOU GPA Calculator — Mini Result';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text(title,40,45);doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(new Date().toLocaleDateString(),40,62);
-  doc.setFontSize(13);doc.text(`${LANG==='ar'?'Semester GPA':'Semester GPA'}: ${semGpa.toFixed(2)}`,40,90);if(cumGpa!==null)doc.text(`${LANG==='ar'?'Cumulative GPA':'Cumulative GPA'}: ${cumGpa.toFixed(2)}`,40,108);doc.text(`${LANG==='ar'?'Credit Hours':'Credit Hours'}: ${totalHrs}`,40,126);
-  const body=rows.filter(r=>!Number.isNaN(r.score)&&!Number.isNaN(r.hours)&&(!r.code||Array.from(rows).every(x=>x.idx<=r.idx||x.code!==r.code))).map(r=>{const gi=getGradeInfo(r.score);return [r.code||'—',gi.letter,gi.points.toFixed(2),String(r.hours)]});
-  if(typeof doc.autoTable==='function')doc.autoTable({startY:145,head:[['Course','Grade','GPA Points','Hours']],body,theme:'grid',styles:{font:'helvetica',fontSize:9,cellPadding:5},headStyles:{fillColor:[37,99,235]},margin:{left:40,right:40}}); else {let y=150;body.forEach(row=>{doc.text(row.join('   '),40,y);y+=16})}
-  const y=(doc.lastAutoTable?.finalY||180)+30;doc.setFontSize(9);doc.text('Unofficial student tool — guidance only.',40,y);doc.text('AOU GPA Calculator',40,y+14);doc.save('AOU-GPA-Result.pdf');showToast(LANG==='ar'?'تم تصدير PDF ✅':'PDF exported ✅');
-}
-function exportWhatIfPDF(){const jsPDF=window.jspdf?.jsPDF;if(!jsPDF){showToast('PDF library not ready');return}const doc=new jsPDF();doc.setFontSize(18);doc.text('AOU GPA Calculator - What If',40,45);doc.setFontSize(12);doc.text(`Current GPA: ${document.getElementById('whatIfCurrentGpa').value||'0.00'}`,40,80);doc.text(`Completed Hours: ${document.getElementById('whatIfCompletedHours').value||'0'}`,40,100);doc.text(`Expected Grade: ${gradeFromPoints(document.getElementById('whatIfGrade').value)}`,40,120);doc.text(`Projected GPA: ${document.getElementById('whatIfResultGpa').textContent}`,40,140);doc.save('AOU-What-If.pdf')}
+        // تصفية المواد حسب خيار الفلتر المختار
+        let displayedList = coursesData;
+        if (filterVal !== 'ALL') {
+            displayedList = coursesData.filter(item => item.major === filterVal);
+        }
 
-async function shareResult(){
-  const target=document.getElementById('resultsBlock'); if(!window.html2canvas){showToast(LANG==='ar'?'انتظر تحميل المشاركة ثم جرّب':'Wait for sharing library to load');return}
-  const canvas=await html2canvas(target,{backgroundColor:getComputedStyle(document.documentElement).getPropertyValue('--bg1').trim()||'#061b2c',scale:2}); const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
-  const file=new File([blob],'AOU-GPA-Result.png',{type:'image/png'});
-  try{if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:'AOU GPA Calculator',text:'My AOU GPA result',files:[file]});return}}catch(e){if(e.name==='AbortError')return}
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AOU-GPA-Result.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast(LANG==='ar'?'تم حفظ صورة النتيجة ✅':'Result image saved ✅');
-}
+        if (displayedList.length === 0) {
+            emptyNotice.style.display = 'block';
+        } else {
+            emptyNotice.style.display = 'none';
+        }
 
-function initEvents(){
-  document.getElementById('isSummer').addEventListener('change',()=>{saveState();compute()});document.getElementById('prevGpa').addEventListener('input',()=>{saveState();compute()});document.getElementById('prevHours').addEventListener('input',()=>{saveState();compute()});
-  document.getElementById('calcPlanSelect').addEventListener('change',()=>{saveState();document.getElementById('planSelect').value=document.getElementById('calcPlanSelect').value||document.getElementById('planSelect').value;renderPlanList()});
-  ['whatIfHours','whatIfCurrentGpa','whatIfCompletedHours','whatIfGrade','whatIfCourse'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{computeWhatIf();saveState()}));
-  document.getElementById('whatIfCourse').addEventListener('change',e=>{const opt=e.target.selectedOptions[0];if(opt?.dataset.hours)document.getElementById('whatIfHours').value=opt.dataset.hours;computeWhatIf();saveState()});
-  document.querySelectorAll('.quick-grade').forEach(b=>b.addEventListener('click',()=>{document.getElementById('whatIfGrade').value=b.dataset.gp;document.querySelectorAll('.quick-grade').forEach(x=>x.classList.remove('active'));b.classList.add('active');computeWhatIf();saveState()}));
-  document.getElementById('planSelect').addEventListener('change',()=>{savePlan();renderPlanList()});document.getElementById('planSearch').addEventListener('input',renderPlanList);
-  document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.matches('input.code-input,input[data-act="score"]')){e.preventDefault();addRow();const last=document.getElementById('rowsArea').lastElementChild;last?.querySelector('[data-act="code"]')?.focus()}});
-}
+        let accumulatedCredits = 0;
+        let accumulatedPoints = 0;
 
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('yr').textContent=new Date().getFullYear();
-  applyTheme(localStorage.getItem('theme')||'dark');
-  populatePlanSelects();populateDatalist();restoreState();initPlan();initEvents();applyI18n();updateTableHeaders();populateDatalist();populateWhatIfCourse();compute();
-  let deferredPrompt;const btn=document.getElementById('btnInstall');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;btn.style.display='inline-flex'});btn.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null});
-  window.addEventListener('beforeunload',saveState);
-});
+        displayedList.forEach(course => {
+            accumulatedCredits += course.credits;
+            accumulatedPoints += (course.credits * course.points);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${course.name}</strong></td>
+                <td>${course.credits}</td>
+                <td>${course.points.toFixed(2)}</td>
+                <td><span style="font-weight: bold; color: #3b82f6;">${course.gradeText}</span></td>
+                <td>${translateMajorName(course.major)}</td>
+                <td><button class="btn btn-danger" onclick="removeCourse(${course.id})">حذف</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // حساب المعدل الفصلي بدقة (مجموع نقاط المواد ÷ إجمالي الساعات)
+        let semesterGPA = accumulatedCredits > 0 ? (accumulatedPoints / accumulatedCredits).toFixed(2) : '0.00';
+
+        // تحديث الواجهة بالعناصر النهائية
+        document.getElementById('resTotalCredits').innerText = accumulatedCredits;
+        document.getElementById('resTotalPoints').innerText = accumulatedPoints.toFixed(2);
+        document.getElementById('resSemesterGPA').innerText = semesterGPA;
+    }
+
+    // تهيئة التطبيق عند اكتمال تحميل النافذة
+    window.onload = function() {
+        renderAppTable();
+    };
 </script>
+
 </body>
 </html>
