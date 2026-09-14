@@ -291,6 +291,11 @@
 <script>
 'use strict';
 
+// Safe JSON parser helper function globally defined
+JSON.parseSafe = function(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+};
+
 const STORAGE_KEY = 'aou_gpa_v20';
 const PLAN_STORAGE_KEY = 'aou_gpa_plan_v20';
 let LANG = 'en';
@@ -298,11 +303,6 @@ let MODE = 'current';
 let currentComputed = { semGpa: 0, cumGpa: null, totalHrs: 0, totalPts: 0, rows: [] };
 let PLAN_COMPLETED = {};
 
-/*
-  Course-plan data transcribed and cross-checked against the uploaded AOU advising-plan PDF pages for each listed track.
-  The PDF contains plans with different document years (2017/2019/2024).
-  Keep sourceYear visible so future updates can replace only this data object.
-*/
 const COURSE_PLANS = {
   'Business Administration — Accounting (English)': { totalHours: 132, sourceYear: 2024, courses: [
     ['AR111','Arabic Comm. Skills – I',3],['EL111','English Comm. Skills – I',3],['GR101','Self-Learning Skills',3],['TU170','Computing Essentials',3],['BUS101','Introduction to Math for Business',4],
@@ -312,13 +312,13 @@ const COURSE_PLANS = {
     ['BUS310','Strategic Management',8],['ACC300','Accounting Information system',4],['ACC302','Auditing Theory and Practice',4],['B326','Advanced financial Accounting',8],['B392','Advanced Management Accounting',8],['BAS400','Applied Studies for Business Students',4]
   ]},
   'Business Administration — Accounting (Arabic)': { totalHours: 129, sourceYear: 2024, courses: [
-    ['AR111','مهارات الاتصال باللغة العربية (1)',3],['EL111E','مهارات الاتصال باللغة الانجليزية (1)',3],['GR101','مهارات التعلم الذاتي',3],['ECON201','مدخل الى العلوم الاقتصادية (1)',3],['ACCT201','مبادئ المحاسبة المالية (1)',3],['MATH201','الرياضيات للعلوم الإدارية والاقتصادية',3],
-    ['AR112','مهارات الاتصال باللغة العربية (2)',3],['EL112E','مهارات الاتصال باللغة الانجليزية (2)',3],['TU170','التعلم عن طريق الانترنت',3],['ECON202','مدخل الى العلوم الاقتصادية (2)',3],['ACCT202','مبادئ المحاسبة المالية (2)',3],['STAT201','الإحصاء للعلوم الإدارية والاقتصادية',3],
-    ['MGT201','مبادئ الإدارة (1)',3],['ACCT320','المحاسبة المتوسطة (1)',3],['ACCT307','المحاسبة الحكومية',3],['FIN301','تمويل (1)',3],['LAW301','البيئة القانونية للأعمال',3],['ELECTIVE','متطلب جامعة اختياري',3],
-    ['MGT202','مبادئ الإدارة (2) - اختياري',3],['MIS201','نظم المعلومات الإدارية',3],['ACCT322','المحاسبة المتوسطة (2)',3],['FIN302','تمويل (2) - اختياري',3],['MKT201','مبادئ التسويق - اختياري',3],['ACCT250','مهارات الحاسوب وتطبيقاته في المحاسبة',3],
-    ['ACCT305','محاسبة تكاليف',3],['ACCT301','نظم المعلومات المحاسبية',3],['ACCT330','تحليل القوائم المالية',3],['ACCT340','محاسبة ضريبة وزكاة',3],['MGT301','بحوث العمليات (1)',3],['ACCT350','محاسبة البنوك والتأمين',3],
-    ['ACCT306','المحاسبة الإدارية',3],['ACCT311','تدقيق نظم المعلومات المحاسبية',3],['ACCT345','محاسبة شركات',3],['ACCT413','معايير المحاسبة الدولية',3],['ACCT420','مواضيع متخصصة في المحاسبة',3],['ACCT412','المعايير الدولية للتدقيق',3],
-    ['ACCT403','المحاسبة المالية المتقدمة - اختياري',3],['ACCT401','نظرية المحاسبة',3],['ACCT402','التدقيق والمراجعة',3],['ACCT430/6','التدريب الميداني',6]
+    ['AR111','مهارات الاتصال باللغة العربية (1)',3],['EL099E','مهارات الاتصال باللغة الانجليزية (1)',3],['GR101','مهارات التعلم الذاتي',3],['201ECON','مدخل الى العلوم الاقتصادية (1)',3],['201ACCT','مبادئ المحاسبة المالية (1)',3],['201MATH','الرياضيات للعلوم الإدارية والاقتصادية',3],
+    ['AR112','مهارات الاتصال باللغة العربية (2)',3],['EL111E','مهارات الاتصال باللغة الانجليزية (2)',3],['TU170','التعلم عن طريق الانترنت',3],['202ECON','مدخل الى العلوم الاقتصادية (2)',3],['202ACCT','مبادئ المحاسبة المالية (2)',3],['201STAT','الإحصاء للعلوم الإدارية والاقتصادية',3],
+    ['201MGT','مبادئ الإدارة (1)',3],['320ACCT','المحاسبة المتوسطة (1)',3],['307ACCT','المحاسبة الحكومية',3],['ACCT202','تمويل (1)',3],['301LAW','البيئة القانونية للأعمال',3],['ELECTIVE-BA','متطلب جامعة اختياري',3],
+    ['202MGT','مبادئ الإدارة (2) - اختياري',3],['201MIS','نظم المعلومات الإدارية',3],['322ACCT','المحاسبة المتوسطة (2)',3],['302FIN','تمويل (2) - اختياري',3],['201MKT','مبادئ التسويق - اختياري',3],['ACCT202-COMP','مهارات الحاسوب وتطبيقاته في المحاسبة',3],
+    ['305ACCT','محاسبة تكاليف',3],['301ACCT','نظم المعلومات المحاسبية',3],['330ACCT','تحليل القوائم المالية',3],['ACCT322','محاسبة ضريبة وزكاة',3],['MGT301','بحوث العمليات (1)',3],['350ACCT','محاسبة البنوك والتأمين',3],
+    ['ACCT305','المحاسبة الإدارية',3],['311ACCT','تدقيق نظم المعلومات المحاسبية',3],['345ACCT','محاسبة شركات',3],['413ACCT','معايير المحاسبة الدولية',3],['420ACCT','مواضيع متخصصة في المحاسبة',3],['412ACCT','المعايير الدولية للتدقيق',3],
+    ['ACCT403','المحاسبة المالية المتقدمة - اختياري',3],['401ACCT','نظرية المحاسبة',3],['402ACCT','التدقيق والمراجعة',3],['430/6ACCT','التدريب الميداني',6]
   ]},
   'Business Administration — Marketing': { totalHours: 132, sourceYear: 2024, courses: [
     ['AR111','Arabic Comm. Skills – I',3],['EL111','English Comm. Skills – I',3],['GR101','Self-Learning Skills',3],['TU170','Computing Essentials',3],['BUS101','Introduction to Math for Business',4],
@@ -329,7 +329,7 @@ const COURSE_PLANS = {
   'Business Administration — Systems': { totalHours: 132, sourceYear: 2024, courses: [
     ['AR111','Arabic Comm. Skills – I',3],['EL111','English Comm. Skills – I',3],['GR101','Self-Learning Skills',3],['TU170','Computing Essentials',3],['BUS101','Introduction to Math for Business',4],
     ['AR112','Arabic Comm. Skills – II',3],['EL112','English Comm. Skills – II',3],['BUS102','Introduction to Statistics',4],['BUS110','Introduction to Business Study',8],['LB170','Professional Communication Skills for Business Studies',8],
-    ['B123','Management Practice',8],['B207A','Shaping Business Opportunities A',8],['SYS210','Managing Technology and Innovation',8],['B207B','Shaping Business Opportunities B',8],['SYS280',"Principles and Practice of Systems' Thinking",8],
+    ['B123','Management Practice',8],['B207A','Shaping Business Opportunities A',8],['SYS210','Managing Technology and Innovation',8],['B207B','Shaping Business Opportunities B',8],['SYS280','Principles and Practice of Systems’ Thinking',8],
     ['BUS310','Strategic Management',8],['SYS380','Managing Systems Complexity',8],['B325','Managing across Organizational and Cultural Boundaries',8],['B327','Sustainable Enterprise and Innovation',8],['BAS400','Applied Studies for Business Students',4]
   ]},
   'Executive Secretarial Program': { totalHours: 128, sourceYear: 2024, courses: [
@@ -338,58 +338,52 @@ const COURSE_PLANS = {
     ['BDF206','Office Applications (1)',3],['DF201','Writing communication skills (1)',3],['DF202','Arabic Language Skills (3)',3],['DF203','Communication Skills in English Language (2)',3],['DF204','Introduction to the Deaf Habilitating',3],
     ['DF210','Writing communication skills (2)',3],['DF211','Arabic Language Skills (4)',3],['DF213','National Education',3],['DF214','Language development and functional Oral language',3],['TDF216','Advanced Computer Maintenance (2)',3],
     ['DF302','Arabic Language Skills (5)',3],['DF303','Translation of Terms and Texts',3],['DF304','The Computer and its Applications in the Working Field',3],['DF305','Professional and Functional Working Environment',3],['DF306','Writing Communication Skills: Professional and Functional Appl',3],
-    ['DF310','Arabic Language Skills (6)',3],['DF311','Instructional strategies',3],['DF312','Issues and Trends in Deaf Society',3],['DF313',"Mathematics' Applications in the Working Field",3],['DF314','Labor Laws and Ethics',3],['DF315','The Community Services',3],
+    ['DF310','Arabic Language Skills (6)',3],['DF311','Instructional strategies',3],['DF312','Issues and Trends in Deaf Society',3],['DF313','Mathematics\' Applications in the Working Field',3],['DF314','Labor Laws and Ethics',3],['DF315','The Community Services',3],
     ['BDF406','Office and administrative applications',3],['DF401','Professional and Career Selection for the deaf and Hearing-Imp',3],['DF402','Arabic Language Skills (7)',3],['DF404','Deaf Theater',3],['DF-405','Project Management',3],['DF410','Internship',12],
     ['DF-212','Developmental Psychology',2],['DF-215','Introduction to Science of Interpretation',2],['DF-301','Psychological Counseling and Guidance',2],['DF-403','Family Empowerment',2],
     ['DF-113','Health and Food',2],['DF-114','Hearing Science',2],['DF-205','Educational Arts',2]
   ]},
-  'IT & Computing — Information Technology': { totalHours: 131, sourceYear: 2019, courses: [
+  'IT & Computing — Information Technology': { totalHours: null, sourceYear: 2019, courses: [
     ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM103','Computer Organization and Architecture',4],['MT131','Discrete Mathematics',4],
-    ['TM105','Introduction to Programming',4],['MT132','Linear Algebra',4],['TM111','Introduction to Computing and Information Technology I',8],['TM112','Introduction to Computing and Information Technology II',8],['M251','Object-Oriented Programming using Java',8],
-    ['M269','Algorithms, Data Structures and Computability',8],['T215A','Communication and Information Technologies-A',8],['T215B','Communication and Information Technologies-B',8],['TM351','Data Management and Analysis',8],
-    ['TM355','Communications Technology',8],['TM354','Software Engineering',8],['TM471-A','ITC, Project-A',4],['TM471-B','ITC, Project-B',4],['CAS400','Applied Studies For Computing Students',4]
+    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM103','Introduction to Computing and Information Technology I',4],['MT131','Discrete Mathematics',4],
+    ['TM105','Introduction to Programming',4],['MT132','Linear Algebra',4],['TM111','Introduction to Computing and Information Technology II',8],['TM112','Communication and Information Technologies-A',8],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],
+    ['T215A','ITC, Project-A',8],['T215B','ITC, Project-B',8],['TM351','Communication and Information Technologies-B',8],['TM354','Software Engineering',8],['TM355','Advanced Networking',8],['TM471-A','ITC, Project-A',4],['TM471-B','ITC, Project-B',4],['CAS400','Applied Studies For Computing Students',4]
   ]},
-  'IT & Computing — Computer Science': { totalHours: 131, sourceYear: 2019, courses: [
-    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['TU170','Computing Essentials',3],['EL111','English Communication Skills I',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['MT131','Discrete Mathematics',4],['TM105','Introduction to Programming',4],
-    ['TM111','Introduction to Computing and Information Technology I',8],['MT132','Linear Algebra',4],['M251','Object-Oriented Programming using Java',8],['TM112','Introduction to Computing and Information Technology II',8],['TM103','Computer Organization and Architecture',4],['M269','Algorithms, Data Structures and Computability',8],
-    ['T227','Change, Strategy and Project at Work',8],['TM240','Computer Graphics and Multimedia',4],['TM298','Operating Systems',4],['TM351','Data Management and Analysis',8],['TM354','Software Engineering',8],
-    ['TM366','Artificial Intelligence',8],['TM471-A','CS, Project-A',4],['TM471-2','CS, Project-B',4],['CAS400','Applied Studies For Computing Students',4]
+  'IT & Computing — Computer Science': { totalHours: null, sourceYear: 2019, courses: [
+    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
+    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],['TM103','Introduction to Computing and Information Technology I',4],
+    ['TM111','Introduction to Computing and Information Technology II',8],['MT132','Linear Algebra',4],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],['TM112','Computer Organization and Architecture',8],
+    ['TM240','Computer Graphics and Multimedia',4],['TM298','Data Management and Analysis',4],['TM354','Software Engineering',8],['TM366','Artificial Intelligence',8],['T227','Change, Strategy and Project at Work',8],['TM471-A','CS, Project-A',4],['TM471-B','CS, Project-B',8],['CAS400','Applied Studies For Computing Students',4]
   ]},
-  'IT & Computing — Computing with Business': { totalHours: 131, sourceYear: 2019, courses: [
-    ['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['GR101','Self-Learning Skills',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],
-    ['BUS110','Introduction to Business',8],['TM111','Introduction to Computing and Information',8],['MT132','Linear Algebra',4],['B207A','Shaping business opportunities A',8],['TM103','Computer Organization and Architecture',4],['M251','Object-Oriented Programming using Java',8],
-    ['B207B','Shaping business opportunities B',8],['M269','Algorithms, Data Structures and Computability',8],['TM352','Web, Mobile and Cloud Technologies',8],['BUS310','Strategic Management',8],['TM351','Data Management and Analysis',8],
-    ['TM471-A','CwB Project-A',4],['TM471-B','CwB Project-B',4],['CAS400','Applied Studies For Computing Students',4]
+  'IT & Computing — Computing with Business': { totalHours: null, sourceYear: 2019, courses: [
+    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
+    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],['TM103','Introduction to Computing and Information Technology I',4],
+    ['BUS110','Introduction to Business',8],['TM111','Introduction to Computing and Information Technology II',8],['MT132','Linear Algebra',4],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],
+    ['B207A','Shaping business opportunities A',8],['B207B','Shaping business opportunities B',8],['TM352','Web, Mobile and Cloud Technologies',8],['BUS310','Strategic Management',8],['TM471-A','CwB Project-A',4],['TM471-B','CwB Project-B',4],['CAS400','Applied Studies For Computing Students',4]
   ]},
-  'IT & Computing — Networking and Security': { totalHours: 131, sourceYear: 2019, courses: [
-    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM111','Introduction to Computing and Information Technology I',8],['MT129','Calculus and Probability',4],
-    ['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],['TM112','Introduction to Computing and Information Technology II',8],['T216A','Cisco Networking (CCNA)-A',8],
-    ['M251','Object-Oriented Programming using Java',8],['MT132','Linear Algebra',4],['T227','Change, Strategy and Project at Work',8],['T216B','Cisco Networking (CCNA)-B',8],
-    ['TM103','Computer Organization and Architecture',4],['T316','Advanced Networking',8],['TM352','Web, Mobile and Cloud Technologies',8],['T318','Applied Network Security',8],
-    ['TM471-A','N&S, Project-A',4],['TM471-B','N&S, Project-B',4],['CAS400','Applied Studies For Computing Students',4]
+  'IT & Computing — Networking and Security': { totalHours: null, sourceYear: 2019, courses: [
+    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
+    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM103','Introduction to Computing and Information Technology I',4],['MT131','Discrete Mathematics',4],
+    ['TM105','Introduction to Programming',4],['TM111','Introduction to Computing and Information Technology II',8],['MT132','Linear Algebra',4],['TM112','Cisco Networking (CCNA)-A',8],['M251','Object-Oriented Programming using Java',8],
+    ['TM352','Advanced Networking',8],['TM354','Web, Mobile and Cloud Technologies',8],['TM355','Cisco Networking (CCNA)-B',8],['TM356','Applied Network Security',8],['T227','Change, Strategy and Project at Work',8],['TM471-A','N&S, Project-A',4],['TM471-B','N&S, Project-B',4],['CAS400','Applied Studies For Computing Students',4]
   ]},
-  'IT & Computing — Web Development': { totalHours: 131, sourceYear: 2019, courses: [
-    ['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['GR101','Self-Learning Skills',3],['MT129','Calculus and Probability',4],
-    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],
-    ['TM103','Computer Organization and Architecture',4],['MT132','Linear Algebra',4],['TM111','Introduction to Computing and IT (I)',8],['TM112','Introduction to Computing and IT (II)',8],['M251','Object-Oriented Programming using Java',8],
-    ['M269','Algorithms, Data Structures and Computability',8],['T227','Change, Strategy and Project at Work',8],['TM354','Software Engineering',8],['TT284','Web Technologies',8],
-    ['TM352','Web, Mobile and Cloud Technologies',8],['TM356','Interaction Design and the User Experience',8],['TM471-A','WD, Project-A',4],['CAS400','Applied Studies For Computing Students',4],['TM471-B','WD, Project-B',4]
+  'IT & Computing — Web Development': { totalHours: null, sourceYear: 2019, courses: [
+    ['GR101','Self-Learning Skills',3],['AR111','Arabic Communication Skills I',3],['EL111','English Communication Skills I',3],['TU170','Computing Essentials',3],['MT129','Calculus and Probability',4],
+    ['AR112','Arabic Communication Skills II',3],['EL112','English Communication Skills II',3],['TM105','Introduction to Programming',4],['MT131','Discrete Mathematics',4],['TM103','Introduction to Computing and IT (I)',4],
+    ['TM111','Introduction to Computing and IT (II)',8],['MT132','Linear Algebra',4],['M251','Object-Oriented Programming using Java',8],['M269','Algorithms, Data Structures and Computability',8],
+    ['TM354','Software Engineering',8],['TT284','Web Technologies',8],['T227','Change, Strategy and Project at Work',8],['TM352','Web, Mobile and Cloud Technologies',8],['TM356','Interaction Design and the User Experience',8],['WD-A','WD, Project-A',8],['WD-B','WD, Project-B',8],['CAS400','Applied Studies For Computing Students',4]
   ]},
   'English Language & Literature': { totalHours: 129, sourceYear: 2017, courses: [
-    ['AR111','Communication Skills in Arabic I',3],['EL111','Communication Skills in English-Intermediate',3],['TU170','Learning On-Line',3],['EL117','Writing',4],['GR101/GR101EL','Self-Learning Skills',3],
-    ['AR112','Communication Skills in Arabic II',3],['EL112','Communication Skills in English-Upper Intermediate',3],['EL120','English phonetics and Linguistics',4],['EL121N','Literary appreciation and Critique',4],['FR101/GR115','French for Beginners/Current International Issues and problems',3],
+    ['AR111','Communication Skills in Arabic I',3],['EL111','Communication Skills in English - Intermediate',3],['TU170','Learning On-Line',3],['EL117','Writing',4],['GR101/GR101EL','Self-Learning Skills',3],
+    ['AR112','Communication Skills in Arabic II',3],['EL112','Communication Skills in English - Upper Intermediate',3],['EL120','English phonetics and Linguistics',4],['EL121N','Literary appreciation and Critique',4],['FR101/GR115','French for Beginners / Current International Issues and problems',3],
     ['AA100A','Arts of Past & Present (I)',8],['AA100B','Arts of Past & Present (II)',8],['U214A','Worlds of English (I)',8],['U214B','Worlds of English (II)',8],['EL119','Oral Presentation Skills',4],['EL118','Reading',4],
-    ['A230A','Reading and Studying Literature (I)',8],['A230B','Reading and Studying Literature (II)',8],['E304A','Exploring English Grammar I',8],['E304B','Exploring English Grammar I',8],['EL122','Writing Research',4],['EA300A','Children’s Literature I',8],['EA300B','Children’s Literature II',8],['LAS 400','Applied studies for English Students',4]
+    ['A230A','Reading and Studying Literature (I)',8],['A230B','Reading and Studying Literature (II)',8],['E304A','Exploring English Grammar I',8],['E304B','Exploring English Grammar I',8],['EL122','Writing Research',4],['EA300A','Children’s Literature I',8],['EA300B','Children’s Literature II',8],['LAS400','Applied studies for English Students',4]
   ]}
 };
 
-const TEXT={
+const TEXT = {
   en:{calcTab:'Calculator',planTab:'Study Plan',infoTab:'Info',currBtn:'Current',expBtn:'Cumulative',whatIfBtn:'What If',addBtn:'+ Add Course',resetBtn:'Reset',calcBtn:'Calculate',pdfBtn:'📄 Export PDF',shareBtn:'📤 Share Result',hours:'Credit Hours',grade:'Grade (100)',code:'Course Code',status:'Status',semGpa:'SEMESTER GPA',cumGpa:'CUMULATIVE GPA',counted:'Counted',dup:'Replaced',rule:'Retake Rule: Latest attempt counts, previous are Replaced.',retakeNote:'* Note: According to AOU regulations, retaking a course is not permitted if the previous grade was B or higher.',dupWarning:'Important: You cannot register the same course twice in the same semester. Duplicates here are treated as Retakes.',prevGpa:'Previous GPA',prevHours:'Completed Hours',summerLbl:'Is this a Summer semester?',summerNo:'No',summerYes:'Yes',selectedPlanLbl:'Study Plan (optional)',noPlan:'No plan selected',infoTitle:'Information & Guide',aboutTitle:'About',aboutText:'This tool helps AOU students calculate Semester GPA, forecast Cumulative GPA, test What If scenarios and track study-plan progress.',scaleTitle:'Grading Scale',gradeHead:'Grade',pointsHead:'Points',percentHead:'Percentage',ranksTitle:'Graduation Ranks & Honors',rankHead:'Rank',estHead:'Estimation',cumHead:'Cumulative GPA',est1:'Excellent',est2:'Very Good',est3:'Good',est4:'Not Graduated',officialTitle:'Official Rules (Student Guide Summary)',warningQ:'Academic Warning (Bachelor)',warningA:'• Warning applies after completing 12 credit hours or more.<br>• If CGPA < 2.00 → warning at the end of any semester (except summer).<br>• Dismissal may occur if warnings reach 5 in 5 consecutive semesters.',graduationQ:'Graduation Requirement (Bachelor)',graduationA:'• Bachelor degree is awarded after passing all courses in the study plan<br>• AND CGPA must be not less than 2.00 out of 4.00.',failQ:'Failing Status Codes',failA:'• FC: Fail in Continuous Assessment (CA) below 30% of CA grade.<br>• FA: Fail due to absenteeism with no excuse.<br>• FF: Fail in Final Exam below 40% of Final grade.<br>• F: Total (CA + Final) below 50%.<br>Note: Fail marks are counted within semester and cumulative GPA.',whatIfTitle:'What If?',whatIfDesc:'Try a future grade without changing your real calculator data.',whatIfCourse:'Course (optional)',whatIfHours:'Course Hours',whatIfGpa:'Current Cumulative GPA',whatIfCompleted:'Completed Credit Hours',whatIfGrade:'Expected Grade',whatIfProjected:'Projected CGPA',whatIfChange:'Change',whatIfPoints:'Grade Points',copyWhatIf:'📋 Copy Scenario',useCurrentCumulative:'↙ Use Cumulative Data',planTitle:'Study Plan & Graduation Progress',planDesc:'Choose your specialization, then mark completed courses.',planSelectLbl:'Specialization',planSearchLbl:'Search Course',planTotal:'Plan Hours',planDone:'Completed',planRemain:'Remaining',planProgress:'Progress',markCalcDone:'✅ Mark Calculator Courses Completed',clearPlan:'Reset Completed Courses',sourceTitle:'Study Plan Source',sourceText:'The course-plan data included in this version is transcribed from the uploaded Arab Open University advising-plan PDF. Some plans in the source are labeled 2017, 2019 or 2024. Check the latest AOU plan before relying on it for registration.'},
-  ar:{calcTab:'الحاسبة',planTab:'الخطة الدراسية',infoTab:'معلومات',currBtn:'فصلي',expBtn:'تراكمي',whatIfBtn:'ماذا لو؟',addBtn:'+ إضافة مادة',resetBtn:'مسح',calcBtn:'احسب',pdfBtn:'📄 تصدير PDF',shareBtn:'📤 مشاركة النتيجة',hours:'عدد الساعات',grade:'الدرجة (من 100)',code:'كود المادة',status:'الحالة',semGpa:'المعدل الفصلي',cumGpa:'المعدل التراكمي',counted:'محتسب',dup:'مستبدل',rule:'قاعدة الإعادة: يُحسب آخر محاولة للمقرر فقط، والمحاولات السابقة تُستبدل.',retakeNote:'* ملاحظة: حسب اللوائح، لا يُسمح بإعادة المقرر إذا كانت الدرجة السابقة B أو أعلى.',dupWarning:'تنبيه: التكرار هنا يعامل كإعادة للمقرر لأغراض الحساب فقط.',prevGpa:'المعدل التراكمي السابق',prevHours:'الساعات المنجزة',summerLbl:'هل هذا الفصل صيفي؟',summerNo:'لا',summerYes:'نعم',selectedPlanLbl:'الخطة الدراسية (اختياري)',noPlan:'لم يتم اختيار خطة',infoTitle:'معلومات وإرشادات',aboutTitle:'حول الحاسبة',aboutText:'هذه الأداة تساعد طلاب AOU على حساب المعدل الفصلي والتراكمي، وتجربة ماذا لو، ومتابعة الخطة الدراسية.',scaleTitle:'سلم الدرجات',gradeHead:'الدرجة',pointsHead:'النقاط',percentHead:'النسبة',ranksTitle:'التقديرات',rankHead:'الرتبة',estHead:'التقدير',cumHead:'المعدل التراكمي',est1:'ممتاز',est2:'جيد جداً',est3:'جيد',est4:'لا يتم تخريجه',officialTitle:'ملخص اللوائح (من دليل الطالب)',warningQ:'الإنذار الأكاديمي (بكالوريوس)',warningA:'• يطبق الإنذار بعد إنجاز 12 ساعة أو أكثر.<br>• إذا CGPA أقل من 2.00 → إنذار بنهاية أي فصل (ما عدا الصيفي).<br>• قد يحدث فصل أكاديمي إذا وصلت الإنذارات 5 في 5 فصول متتالية.',graduationQ:'شرط التخرج (بكالوريوس)',graduationA:'• يُمنح البكالوريوس بعد النجاح في جميع مقررات الخطة<br>• وبشرط ألا يقل CGPA عن 2.00 من 4.00.',failQ:'رموز الرسوب',failA:'• FC: رسوب في أعمال السنة (CA) أقل من 30% من درجة CA.<br>• FA: رسوب بسبب الغياب بدون عذر.<br>• FF: رسوب في النهائي أقل من 40% من درجة النهائي.<br>• F: مجموع (CA + النهائي) أقل من 50%.<br>ملاحظة: الرسوب يُحتسب في الفصلي والتراكمي.',whatIfTitle:'ماذا لو؟',whatIfDesc:'جرّب درجة مستقبلية بدون تغيير بيانات الحاسبة الحقيقية.',whatIfCourse:'المادة (اختياري)',whatIfHours:'ساعات المادة',whatIfGpa:'المعدل التراكمي الحالي',whatIfCompleted:'الساعات المنجزة',whatIfGrade:'الدرجة المتوقعة',whatIfProjected:'المعدل التراكمي المتوقع',whatIfChange:'التغير',whatIfPoints:'نقاط الدرجة',copyWhatIf:'📋 نسخ السيناريو',useCurrentCumulative:'↙ استخدام بيانات التراكمي',planTitle:'الخطة الدراسية ونسبة التخرج',planDesc:'اختر تخصصك ثم حدد المواد التي أنجزتها.',planSelectLbl:'التخصص',planSearchLbl:'بحث عن مادة',planTotal:'ساعات الخطة',planDone:'المنجزة',planRemain:'المتبقية',planProgress:'الإنجاز',markCalcDone:'✅ تحديد مواد الحاسبة كمنجزة',clearPlan:'مسح المواد المنجزة',sourceTitle:'مصدر الخطط الدراسية',sourceText:'بيانات الخطط في هذا الإصدار منسوخة من ملف خطط الجامعة العربية المفتوحة المرفوع. الملف يتضمن خططًا موضحة بالسنوات 2017 و2019 و2024. تحقق من أحدث خطة منشورة من الجامعة قبل الاعتماد عليها للتسجيل.'}
+  ar:{calcTab:'الحاسبة',planTab:'الخطة الدراسية',infoTab:'معلومات',currBtn:'فصلي',expBtn:'تراكمي',whatIfBtn:'ماذا لو؟',addBtn:'+ إضافة مادة',resetBtn:'مسح',calcBtn:'احسب',pdfBtn:'📄 تصدير PDF',shareBtn:'📤 مشاركة النتيجة',hours:'عدد الساعات',grade:'الدرجة (من 100)',code:'كود المادة',status:'الحالة',semGpa:'المعدل الفصلي',cumGpa:'المعدل التراكمي',counted:'محتسب',dup:'مستبدل',rule:'قاعدة الإعادة: يُحسب آخر محاولة للمقرر فقط، والمحاولات السابقة تُستبدل.',retakeNote:'* ملاحظة: حسب اللوائح، لا يُسمح بإعادة المقرر إذا كانت الدرجة السابقة B أو أعلى.',dupWarning:'تنبيه: التكرار هنا يعامل كإعادة للمقرر لأغراض الحساب فقط.',prevGpa:'المعدل التراكمي السابق',prevHours:'الساعات المنجزة',summerLbl:'هل هذا الفصل صيفي؟',summerNo:'لا',summerYes:'نعم',selectedPlanLbl:'الخطة الدراسية (اختياري)',noPlan:'لم يتم اختيار خطة',infoTitle:'معلومات وإرشادات',aboutTitle:'حول الحاسبة',aboutText:'هذه الأداة تساعد طلاب AOU على حساب المعدل الفصلي والتراكمي، وتجربة ماذا لو، ومتابعة الخطة الدراسية.',scaleTitle:'سلم الدرجات',gradeHead:'الدرجة',pointsHead:'النقاط',percentHead:'النسبة',ranksTitle:'التقديرات',rankHead:'الرتبة',estHead:'التقدير',cumHead:'المعدل التراكمي',est1:'ممتاز',est2:'جيد جداً',est3:'جيد',est4:'لا يتم تخريجه',officialTitle:'ملخص اللوائح (من دليل الطالب)',warningQ:'الإنذار الأكاديمي (بكالوريوس)',warningA:'• يطبق الإنذار بعد إنجاز 12 ساعة أو أكثر.<br>• إذا CGPA أقل من 2.00 → إنذار بنهاية أي فصل (ما عدا الصيفي).<br>• قد يحدث فصل أكاديمي إذا وصلت الإنذارات 5 في 5 فصول متتالية.',graduationQ:'شرط التخرج (بكالوريوس)',graduationA:'• يُمنح البكالوريوس بعد النجاح في جميع مقررات الخطة<br>• وبشرط ألا يقل CGPA عن 2.00 من 4.00.',failQ:'رموز الرسوب',failA:'• FC: رسوب في أعمال السنة (CA) أقل من 30% من درجة CA.<br>• FA: رسوب بسبب الغياب بدون عذر.<br>• FF: رسوب في النهائي أقل من 40% من درجة النهائي.<br>• F: مجموع (CA + النهائي) أقل من 50%.<br>ملاحظة: الرسوب يُحتسب في الفصلي والتراكمي.',whatIfTitle:'ماذا لو؟',whatIfDesc:'جرّب درجة مستقبلية بدون تغيير بيانات الحاسبة الحقيقية.',whatIfCourse:'المادة (اختياري)',whatIfHours:'ساعات المادة',whatIfGpa:'المعدل التراكمي الحالي',whatIfCompleted:'الساعات المنجزة',whatIfGrade:'الدرجة المتوقعة',whatIfProjected:'المعدل المتوقع',whatIfChange:'التغير',whatIfPoints:'نقاط الدرجة',copyWhatIf:'📋 نسخ السيناريو',useCurrentCumulative:'↙ استخدام بيانات التراكمي',planTitle:'الخطة الدراسية ونسبة التخرج',planDesc:'اختر تخصصك ثم حدد المواد التي أنجزتها.',planSelectLbl:'التخصص',planSearchLbl:'بحث عن مادة',planTotal:'ساعات الخطة',planDone:'المنجزة',planRemain:'المتبقية',planProgress:'الإنجاز',markCalcDone:'✅ تحديد مواد الحاسبة كمنجزة',clearPlan:'مسح المواد المنجزة',sourceTitle:'مصدر الخطط الدراسية',sourceText:'بيانات الخطط في هذا الإصدار منسوخة من ملف خطط الجامعة العربية المفتوحة المرفوع. الملف يتضمن خططًا موضحة بالسنوات 2017 و2019 و2024. تحقق من أحدث خطة منشورة من الجامعة قبل الاعتماد عليها للتسجيل.'}
 };
 
 function t(k){ return TEXT[LANG][k] || k; }
@@ -432,6 +426,7 @@ function rowTemplate(data={}){
   selectHrs.addEventListener('change',()=>{saveState();compute();});
   if(score!=='') updatePreview(scoreInput); applyCourseAutofill(div); if(code||score!=='') validateRow(div); return div;
 }
+
 function applyCourseAutofill(row){
   const inp=row.querySelector('[data-act="code"]'), hint=row.querySelector('[data-act="hint"]'), code=inp.value.trim().toUpperCase();
   const matches=findCourses(code);
@@ -440,16 +435,20 @@ function applyCourseAutofill(row){
     const h=row.querySelector('[data-act="hours"]'); if(['2','3','4','6','8'].includes(String(c[2]))) h.value=String(c[2]);
   }else if(matches.length){ hint.textContent=(LANG==='ar'?`${matches.length} اقتراحات`:`${matches.length} suggestions`); } else hint.textContent='';
 }
-function normalizeCode(s){return String(s).toUpperCase().replace(/\s+/g,'')}
+
+function normalizeCode(s){return String(s||'').toUpperCase().replace(/\s+/g,'');}
+
 function findCourses(query){
   const q=normalizeCode(query); if(!q)return[]; const map=new Map();
   Object.values(COURSE_PLANS).forEach(p=>p.courses.forEach(c=>map.set(c[0],c)));
   return [...map.values()].filter(c=>normalizeCode(c[0]).includes(q)||String(c[1]).toLowerCase().includes(String(query).toLowerCase())).slice(0,20);
 }
+
 function populateDatalist(){
   const map=new Map(); Object.values(COURSE_PLANS).forEach(p=>p.courses.forEach(c=>map.set(c[0],c)));
   document.getElementById('courseSuggestions').innerHTML=[...map.values()].map(c=>`<option value="${escapeAttr(c[0])}" label="${escapeAttr(c[0]+' — '+c[1])}"></option>`).join('');
 }
+
 function validateRow(row){ const inp=row.querySelector('[data-act="score"]'),v=inp.value.trim(),n=parseFloat(v); if(v===''){inp.classList.remove('input-error');return} if(Number.isNaN(n)||n<0||n>100)inp.classList.add('input-error');else inp.classList.remove('input-error'); }
 function updatePreview(input){ const p=input.nextElementSibling,v=input.value,n=parseFloat(v); if(v.trim()===''||Number.isNaN(n)||n<0||n>100){p.textContent='';p.className='grade-preview';return} const r=getGradeInfo(n); p.className='grade-preview show '+(r.points>=3.5?'excellent':r.points>=2?'good':r.points>=1.5?'warn':'bad');p.textContent=`${r.letter} | ${r.points.toFixed(2)}`; }
 function addRow(data){document.getElementById('rowsArea').appendChild(rowTemplate(data));}
@@ -461,6 +460,7 @@ function readCalculatorRows(){
     return {idx,row,code:row.querySelector('[data-act="code"]').value.trim().toUpperCase(),score,hours:parseFloat(row.querySelector('[data-act="hours"]').value)};
   });
 }
+
 function computeStandard(){
   const parsed=readCalculatorRows(),lastSeen=new Map(); parsed.forEach(p=>{if(p.code)lastSeen.set(normalizeCode(p.code),p.idx)});
   let totalPts=0,totalHrs=0,hasDuplicate=false;
@@ -478,10 +478,12 @@ function computeStandard(){
   }
   currentComputed={semGpa,cumGpa,totalHrs,totalPts,rows:parsed}; return currentComputed;
 }
+
 function compute(){
   if(MODE==='whatif'){computeWhatIf();return}
   computeStandard(); saveState();
 }
+
 function updateAdvisingBox(cgpa,completedHours){
   const box=document.getElementById('advisingBox'); if(!box)return; if(MODE!=='expected'){box.classList.add('hidden');return} box.classList.remove('hidden');
   const isSummer=document.getElementById('isSummer').value==='yes',notEligible=cgpa<2,warning=!isSummer&&completedHours>=12&&cgpa<2;
@@ -502,22 +504,27 @@ function populateWhatIfCourse(){
   const rows=readCalculatorRows().filter(r=>r.code); const sel=document.getElementById('whatIfCourse'); const opts=['<option value="">'+(LANG==='ar'?'مادة جديدة / اختر يدويًا':'New / choose manually')+'</option>'];
   rows.forEach(r=>{const found=findCourses(r.code).find(c=>normalizeCode(c[0])===normalizeCode(r.code)); const name=found?found[1]:r.code; opts.push(`<option value="${escapeAttr(r.code)}" data-hours="${r.hours}">${escapeHtml(r.code+' — '+name)}</option>`)});sel.innerHTML=opts.join('');
 }
+
 function loadWhatIfFromState(){
   populateWhatIfCourse(); const st=JSON.parseSafe(localStorage.getItem(STORAGE_KEY),{}); if(st.whatIf){document.getElementById('whatIfCurrentGpa').value=st.whatIf.gpa||'';document.getElementById('whatIfCompletedHours').value=st.whatIf.hours||'';document.getElementById('whatIfHours').value=st.whatIf.courseHours||3;document.getElementById('whatIfGrade').value=String(st.whatIf.grade??4);document.getElementById('whatIfCourse').value=st.whatIf.code||''}
 }
+
 function pullFromCumulative(){document.getElementById('whatIfCurrentGpa').value=document.getElementById('prevGpa').value;document.getElementById('whatIfCompletedHours').value=document.getElementById('prevHours').value;computeWhatIf();}
+
 function computeWhatIf(){
   const gpa=Math.min(4,Math.max(0,parseFloat(document.getElementById('whatIfCurrentGpa').value)||0)); const done=Math.max(0,parseFloat(document.getElementById('whatIfCompletedHours').value)||0);const hrs=Math.max(0,parseFloat(document.getElementById('whatIfHours').value)||0);const gp=parseFloat(document.getElementById('whatIfGrade').value)||0; const projected=done+hrs>0?((gpa*done)+(gp*hrs))/(done+hrs):0;const delta=projected-gpa;
   document.getElementById('whatIfResultGpa').textContent=projected.toFixed(2);document.getElementById('whatIfChange').textContent=(delta>=0?'+':'')+delta.toFixed(2);document.getElementById('whatIfPoints').textContent=gp.toFixed(2);
   const near=projected>=2&&projected<2.2,low=projected<2, msg=low?(LANG==='ar'?'❌ النتيجة المتوقعة أقل من 2.00.':'❌ Projected CGPA is below 2.00.'):near?(LANG==='ar'?'⚠️ المعدل المتوقع قريب من 2.00.':'⚠️ Projected CGPA is close to 2.00.'):(LANG==='ar'?'✅ جرّب درجات أخرى للمقارنة.':'✅ Try other grades to compare the result.');document.getElementById('whatIfAdvice').innerHTML=msg;
   saveState(); return projected;
 }
+
 function copyWhatIf(){const g=document.getElementById('whatIfCurrentGpa').value||'0',h=document.getElementById('whatIfCompletedHours').value||'0',hrs=document.getElementById('whatIfHours').value||'3',gp=document.getElementById('whatIfGrade').value||'4',p=document.getElementById('whatIfResultGpa').textContent;const text=LANG==='ar'?`ماذا لو؟\nالمعدل الحالي: ${g}\nالساعات المنجزة: ${h}\nالمادة: ${hrs} ساعات\nالدرجة: ${gradeFromPoints(gp)} (${Number(gp).toFixed(2)})\nالمعدل المتوقع: ${p}`:`What If?\nCurrent GPA: ${g}\nCompleted hours: ${h}\nCourse: ${hrs} credits\nGrade: ${gradeFromPoints(gp)} (${Number(gp).toFixed(2)})\nProjected GPA: ${p}`;navigator.clipboard?.writeText(text).then(()=>showToast(LANG==='ar'?'تم النسخ ✅':'Copied ✅')).catch(()=>showToast(text));}
 
 function saveState(){
   const rows=Array.from(document.getElementById('rowsArea').children).map(row=>({code:row.querySelector('[data-act="code"]').value,score:row.querySelector('[data-act="score"]').value,hours:row.querySelector('[data-act="hours"]').value}));
   localStorage.setItem(STORAGE_KEY,JSON.stringify({mode:MODE,prevGpa:document.getElementById('prevGpa').value,prevHours:document.getElementById('prevHours').value,isSummer:document.getElementById('isSummer').value,rows,lang:LANG,calcPlan:document.getElementById('calcPlanSelect').value,whatIf:{gpa:document.getElementById('whatIfCurrentGpa').value,hours:document.getElementById('whatIfCompletedHours').value,courseHours:document.getElementById('whatIfHours').value,grade:document.getElementById('whatIfGrade').value,code:document.getElementById('whatIfCourse').value}}));
 }
+
 function restoreState(){
   const st=JSON.parseSafe(localStorage.getItem(STORAGE_KEY),null); if(!st){addRow();return}
   LANG=st.lang==='ar'?'ar':'en'; document.documentElement.dir=LANG==='ar'?'rtl':'ltr';document.documentElement.lang=LANG==='ar'?'ar':'en';applyI18n();populatePlanSelects();
@@ -526,9 +533,6 @@ function restoreState(){
   document.getElementById('whatIfCurrentGpa').value=st.whatIf?.gpa||'';document.getElementById('whatIfCompletedHours').value=st.whatIf?.hours||'';document.getElementById('whatIfHours').value=st.whatIf?.courseHours||3;document.getElementById('whatIfGrade').value=String(st.whatIf?.grade??4);
   applyI18n();updateTableHeaders();setMode(st.mode||'current');
 }
-function JSONsafeDummy(){}
-function JSONparseRaw(){return null}
-JSON.parseSafe=function(raw,fallback){try{return raw?JSON.parse(raw):fallback}catch{return fallback}};
 
 function resetAll(){if(confirm(LANG==='ar'?'هل أنت متأكد من مسح جميع الحقول؟':'Clear all fields?')){document.getElementById('rowsArea').innerHTML='';addRow();document.getElementById('prevGpa').value='';document.getElementById('prevHours').value='';document.getElementById('isSummer').value='no';document.getElementById('calcPlanSelect').value='';document.getElementById('semGpa').textContent='0.00';document.getElementById('cumGpa').textContent='0.00';document.getElementById('whatIfCurrentGpa').value='';document.getElementById('whatIfCompletedHours').value='';localStorage.removeItem(STORAGE_KEY);compute();showToast(LANG==='ar'?'تم المسح 🗑️':'Reset Done 🗑️');}}
 function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(showToast._t);showToast._t=setTimeout(()=>el.style.display='none',1800)}
@@ -548,18 +552,20 @@ function courseKey(planName,code){return planName+'::'+code}
 function renderPlanList(){const plan=currentPlan();if(!plan)return;const name=document.getElementById('planSelect').value,q=(document.getElementById('planSearch').value||'').toLowerCase().trim();const list=plan.courses.filter(c=>!q||String(c[0]).toLowerCase().includes(q)||String(c[1]).toLowerCase().includes(q));document.getElementById('planList').innerHTML=list.map(c=>{const key=courseKey(name,c[0]),checked=!!PLAN_COMPLETED[key];return `<label class="plan-item"><input type="checkbox" ${checked?'checked':''} data-plan-key="${escapeAttr(key)}"><div class="plan-item-main"><div class="plan-item-code">${escapeHtml(c[0])}</div><div class="plan-item-title">${escapeHtml(c[1])}</div></div><div class="plan-hours">${c[2]}h</div></label>`}).join('');document.querySelectorAll('#planList input[type="checkbox"]').forEach(cb=>cb.addEventListener('change',()=>{PLAN_COMPLETED[cb.dataset.planKey]=cb.checked;savePlan();updatePlanSummary()}));updatePlanSummary();}
 function updatePlanSummary(){const plan=currentPlan();if(!plan)return;const name=document.getElementById('planSelect').value;let total=plan.totalHours; if(!Number.isFinite(total)) total=plan.courses.reduce((s,c)=>s+Number(c[2]||0),0);let done=plan.courses.reduce((s,c)=>s+(PLAN_COMPLETED[courseKey(name,c[0])] ? Number(c[2]||0):0),0);const remain=Math.max(0,total-done),pct=total?Math.min(100,(done/total)*100):0;document.getElementById('planTotalHours').textContent=total;document.getElementById('planDoneHours').textContent=done;document.getElementById('planRemainHours').textContent=remain;document.getElementById('planPercent').textContent=pct.toFixed(0)+'%';document.getElementById('planProgressBar').style.width=pct+'%';}
 function clearPlanDone(){const prefix=document.getElementById('planSelect').value+'::';Object.keys(PLAN_COMPLETED).forEach(k=>{if(k.startsWith(prefix))delete PLAN_COMPLETED[k]});savePlan();renderPlanList();}
-function markCalculatorCoursesDone(){const name=document.getElementById('planSelect').value;const codes=readCalculatorRows().map(r=>normalizeCode(r.code)).filter(Boolean);const plan=currentPlan();plan.courses.forEach(c=>{if(codes.includes(normalizeCode(c[0])))PLAN_COMPLETED[courseKey(name,c[0])]=true});savePlan();renderPlanList();showToast(LANG==='ar'?'تم تحديد المواد المطابقة ✅':'Matching courses marked ✅')}
+function markCalculatorCoursesDone(){const name=document.getElementById('planSelect').value;const codes=readCalculatorRows().map(r=>normalizeCode(r.code)).filter(Boolean);const plan=currentPlan();if(!plan)return;plan.courses.forEach(c=>{if(codes.includes(normalizeCode(c[0])))PLAN_COMPLETED[courseKey(name,c[0])]=true});savePlan();renderPlanList();showToast(LANG==='ar'?'تم تحديد المواد المطابقة ✅':'Matching courses marked ✅')}
 
 function exportPDF(){
   if(MODE==='whatif'){return exportWhatIfPDF()}
   const jsPDF=window.jspdf?.jsPDF;if(!jsPDF){showToast(LANG==='ar'?'انتظر تحميل PDF ثم جرّب مرة أخرى':'Wait for PDF library to load, then try again');return}
   const {semGpa,cumGpa,totalHrs,rows}=computeStandard(); const doc=new jsPDF({unit:'pt',format:'a4'});
-  const title=LANG==='ar'?'AOU GPA Calculator — تقرير نتيجة':'AOU GPA Calculator — Mini Result';doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text(title,40,45);doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(new Date().toLocaleDateString(),40,62);
-  doc.setFontSize(13);doc.text(`${LANG==='ar'?'Semester GPA':'Semester GPA'}: ${semGpa.toFixed(2)}`,40,90);if(cumGpa!==null)doc.text(`${LANG==='ar'?'Cumulative GPA':'Cumulative GPA'}: ${cumGpa.toFixed(2)}`,40,108);doc.text(`${LANG==='ar'?'Credit Hours':'Credit Hours'}: ${totalHrs}`,40,126);
-  const body=rows.filter(r=>!Number.isNaN(r.score)&&!Number.isNaN(r.hours)&&(!r.code||Array.from(rows).every(x=>x.idx<=r.idx||x.code!==r.code))).map(r=>{const gi=getGradeInfo(r.score);return [r.code||'—',gi.letter,gi.points.toFixed(2),String(r.hours)]});
+  const title='AOU GPA Calculator - Summary Report';
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(title,40,45);doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(`Date: ${new Date().toLocaleDateString()}`,40,62);
+  doc.setFontSize(12);doc.text(`Semester GPA: ${semGpa.toFixed(2)}`,40,90);if(cumGpa!==null)doc.text(`Cumulative GPA: ${cumGpa.toFixed(2)}`,40,108);doc.text(`Credit Hours: ${totalHrs}`,40,126);
+  const body=rows.filter(r=>!Number.isNaN(r.score)&&!Number.isNaN(r.hours)&&(!r.code||Array.from(rows).every(x=>x.idx<=r.idx||normalizeCode(x.code)!==normalizeCode(r.code)))).map(r=>{const gi=getGradeInfo(r.score);return [r.code||'—',gi.letter,gi.points.toFixed(2),String(r.hours)]});
   if(typeof doc.autoTable==='function')doc.autoTable({startY:145,head:[['Course','Grade','GPA Points','Hours']],body,theme:'grid',styles:{font:'helvetica',fontSize:9,cellPadding:5},headStyles:{fillColor:[37,99,235]},margin:{left:40,right:40}}); else {let y=150;body.forEach(row=>{doc.text(row.join('   '),40,y);y+=16})}
   const y=(doc.lastAutoTable?.finalY||180)+30;doc.setFontSize(9);doc.text('Unofficial student tool — guidance only.',40,y);doc.text('AOU GPA Calculator',40,y+14);doc.save('AOU-GPA-Result.pdf');showToast(LANG==='ar'?'تم تصدير PDF ✅':'PDF exported ✅');
 }
+
 function exportWhatIfPDF(){const jsPDF=window.jspdf?.jsPDF;if(!jsPDF){showToast('PDF library not ready');return}const doc=new jsPDF();doc.setFontSize(18);doc.text('AOU GPA Calculator - What If',40,45);doc.setFontSize(12);doc.text(`Current GPA: ${document.getElementById('whatIfCurrentGpa').value||'0.00'}`,40,80);doc.text(`Completed Hours: ${document.getElementById('whatIfCompletedHours').value||'0'}`,40,100);doc.text(`Expected Grade: ${gradeFromPoints(document.getElementById('whatIfGrade').value)}`,40,120);doc.text(`Projected GPA: ${document.getElementById('whatIfResultGpa').textContent}`,40,140);doc.save('AOU-What-If.pdf')}
 
 async function shareResult(){
