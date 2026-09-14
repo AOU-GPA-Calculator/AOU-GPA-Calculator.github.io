@@ -99,9 +99,10 @@
       width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border);
       background: var(--input-bg); color: var(--text); text-align: center;
       font-weight: 700; outline: none; font-size:16px; transition: all 0.2s; appearance: none;
-      text-align-last: center;
+      text-align-last: center; /* Fix for dropdown centering */
+      
     }
-    html[dir="rtl"] select { padding-right: 14px; padding-left: 30px; }
+    html[dir="rtl"] select { padding-right: 14px; padding-left: 30px; } /* Fix for RTL dropdown arrow */
     
     input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(246,177,0,0.2); }
     input.code-input { text-transform: uppercase; font-family: var(--mono); }
@@ -297,10 +298,10 @@
       </div>
 
       <div class="thead" style="margin-top:20px;">
-        <div data-i18n="code">Course Code</div>
-        <div data-i18n="hours">Credit Hours</div>
-        <div data-i18n="grade">Grade (100)</div>
-        <div data-i18n="status">Status</div>
+        <div data-lang="code">Course Code</div>
+        <div data-lang="hours">Credit Hours</div>
+        <div data-lang="grade">Grade (100)</div>
+        <div data-lang="status">Status</div>
         <div>Del</div>
       </div>
 
@@ -316,12 +317,12 @@
 
       <div class="results-area">
         <div class="res-num" id="semGpa">0.00</div>
-        <div class="res-label" data-i18n="semGpa">SEMESTER GPA</div>
+        <div class="res-label" data-lang="semGpa">SEMESTER GPA</div>
         <div id="semRank" class="res-badge hidden">Excellent</div>
 
         <div id="cumBlock" class="hidden" style="margin-top:35px; padding-top:25px; border-top:1px dashed var(--border);">
           <div class="res-num" id="cumGpa" style="font-size:50px;">0.00</div>
-          <div class="res-label" data-i18n="cumGpa">CUMULATIVE GPA</div>
+          <div class="res-label" data-lang="cumGpa">CUMULATIVE GPA</div>
           <div id="cumRank" class="res-badge hidden">Excellent</div>
 
           <div id="advisingBox" class="ruleBox hidden" style="margin-top:18px;"></div>
@@ -413,7 +414,6 @@
         Under Supervision of the Dean of FCS: <strong style="color:var(--text); font-size: 13px;">Dr. Omar Abdulkader</strong>
       </div>
     </div>
-  </div>
 
 <script>
 let LANG = 'en';
@@ -501,6 +501,10 @@ const TEXT = {
   }
 };
 
+// ----------------------------------------------------------------------
+// Translates all static UI elements (data-i18n attributes) based on the current language
+// يترجم جميع عناصر الواجهة الثابتة بناءً على اللغة المحددة حالياً
+// ----------------------------------------------------------------------
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -508,6 +512,10 @@ function applyI18n(){
   });
 }
 
+// ----------------------------------------------------------------------
+// Initializes the application, restores saved state, and sets up event listeners on page load
+// يهيئ التطبيق عند تحميل الصفحة، يسترجع البيانات المحفوظة، ويجهز مستمعي الأحداث
+// ----------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('yr').textContent = new Date().getFullYear();
   if(!localStorage.getItem('theme')) localStorage.setItem('theme', 'dark');
@@ -522,23 +530,20 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); deferredPrompt = e; btnInstall.style.display = 'inline-flex';
   });
-  if(btnInstall){
-    btnInstall.addEventListener('click', async () => {
-      if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
-    });
-  }
+  btnInstall.addEventListener('click', async () => {
+    if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+  });
 
   const summerSel = document.getElementById("isSummer");
   if(summerSel){
     summerSel.addEventListener("change", () => { saveState(); compute(); });
   }
-
-  const prevGpa = document.getElementById('prevGpa');
-  const prevHours = document.getElementById('prevHours');
-  if(prevGpa) prevGpa.addEventListener('input', () => { saveState(); compute(); });
-  if(prevHours) prevHours.addEventListener('input', () => { saveState(); compute(); });
 });
 
+// ----------------------------------------------------------------------
+// Generates and returns a new HTML row element for course entry with real-time validation listeners
+// ينشئ ويعيد عنصر HTML جديد (صف) لإدخال بيانات المادة ويربطه بأحداث التحقق اللحظي
+// ----------------------------------------------------------------------
 function rowTemplate(data = {}){
   const code = data.code ?? "";
   const score = (data.score ?? "") === "" ? "" : String(data.score);
@@ -550,7 +555,7 @@ function rowTemplate(data = {}){
     <div class="cell-del"><button class="btn-del" onclick="removeRow(this)">✕</button></div>
     <div class="mobile-wrapper">
       <div class="cell-half cell-hours">
-        <span class="mobile-label" data-i18n="hours">${TEXT[LANG].hours}</span>
+        <span class="mobile-label">${LANG==='ar'?'الساعات':'Credit Hours'}</span>
         <select data-act="hours">
           <option value="3" ${hours==='3'?'selected':''}>3</option>
           <option value="4" ${hours==='4'?'selected':''}>4</option>
@@ -558,13 +563,13 @@ function rowTemplate(data = {}){
         </select>
       </div>
       <div class="cell-half cell-grade">
-        <span class="mobile-label" data-i18n="grade">${TEXT[LANG].grade}</span>
+        <span class="mobile-label">${LANG==='ar'?'الدرجة':'Grade'}</span>
         <input type="text" inputmode="decimal" data-act="score" placeholder="88" value="${score}">
         <span class="grade-preview"></span>
       </div>
     </div>
     <div class="cell-code">
-      <span class="mobile-label" data-i18n="code">${TEXT[LANG].code}</span>
+      <span class="mobile-label">${LANG==='ar'?'اسم المادة':'Course Code'}</span>
       <input type="text" data-act="code" class="code-input" placeholder="GR101" value="${code}">
     </div>
     <div class="cell-status"><span class="badge ok" data-act="status">---</span></div>
@@ -589,9 +594,12 @@ function rowTemplate(data = {}){
   return div;
 }
 
+// ----------------------------------------------------------------------
+// Validates the entered score to ensure it is a numerical value between 0 and 100
+// يتحقق من صحة الدرجة المدخلة للتأكد من أنها رقم بين 0 و 100 ويطبق تأثير الخطأ بصرياً
+// ----------------------------------------------------------------------
 function validateRow(row){
   const scoreInp = row.querySelector('[data-act="score"]');
-  if(!scoreInp) return;
   const val = scoreInp.value;
   if(val.trim() === ""){
     scoreInp.classList.remove('input-error');
@@ -602,309 +610,380 @@ function validateRow(row){
   else scoreInp.classList.remove('input-error');
 }
 
-function updatePreview(input) {
-  const row = input.closest('.trow');
-  if(!row) return;
-  const preview = row.querySelector('.grade-preview');
-  if(!preview) return;
-  
-  const val = parseFloat(input.value);
-  if (isNaN(val) || input.value.trim() === "" || val < 0 || val > 100) {
-    preview.classList.remove('show');
+// ----------------------------------------------------------------------
+// Updates the visual badge dynamically to display the corresponding letter grade as the user types
+// يحدث المربع الصغير أسفل الدرجة ليظهر الحرف الأكاديمي (A, B, C) والنقاط ديناميكياً أثناء الكتابة
+// ----------------------------------------------------------------------
+function updatePreview(input){
+  const previewEl = input.nextElementSibling;
+  const valStr = input.value;
+  const val = parseFloat(valStr);
+
+  if(valStr.trim() === "" || isNaN(val) || val > 100 || val < 0){
+    previewEl.textContent = "";
+    previewEl.classList.remove('show');
     return;
   }
 
-  const info = getGradeInfo(val);
-  preview.textContent = `${info.letter} (${info.pts.toFixed(1)} pts)`;
-  preview.className = `grade-preview show ${info.cls}`;
+  previewEl.className = 'grade-preview show';
+  const result = getGradeInfo(val);
+  previewEl.textContent = `${result.letter} | ${result.points.toFixed(2)}`;
+
+  if(result.points >= 3.5) previewEl.classList.add('excellent');
+  else if (result.points >= 2.0) previewEl.classList.add('good');
+  else if (result.points >= 1.5) previewEl.classList.add('warn');
+  else previewEl.classList.add('bad');
 }
 
-function getGradeInfo(mark) {
-  if (mark >= 90) return { letter: 'A',  pts: 4.0, cls: 'excellent' };
-  if (mark >= 82) return { letter: 'B+', pts: 3.5, cls: 'excellent' };
-  if (mark >= 74) return { letter: 'B',  pts: 3.0, cls: 'good' };
-  if (mark >= 66) return { letter: 'C+', pts: 2.5, cls: 'good' };
-  if (mark >= 58) return { letter: 'C',  pts: 2.0, cls: 'warn' };
-  if (mark >= 50) return { letter: 'D',  pts: 1.5, cls: 'warn' };
-  return { letter: 'F', pts: 0.0, cls: 'bad' };
+// ----------------------------------------------------------------------
+// Maps a numerical percentage (0-100) to AOU's official letter grades and GPA points
+// يربط النسبة المئوية للدرجة مع سلم الدرجات والنقاط الرسمي الخاص بجامعة AOU
+// ----------------------------------------------------------------------
+function getGradeInfo(score){
+  if (score >= 90) return { points: 4.0, letter: 'A' };
+  if (score >= 82) return { points: 3.5, letter: 'B+' };
+  if (score >= 74) return { points: 3.0, letter: 'B' };
+  if (score >= 66) return { points: 2.5, letter: 'C+' };
+  if (score >= 58) return { points: 2.0, letter: 'C' };
+  if (score >= 50) return { points: 1.5, letter: 'D' };
+  return { points: 0.0, letter: 'F' };
 }
 
-function addRow(data = {}) {
-  const area = document.getElementById('rowsArea');
-  if(!area) return;
-  const row = rowTemplate(data);
-  area.appendChild(row);
-  saveState();
+// ----------------------------------------------------------------------
+// Appends a newly created course row to the calculation table UI
+// يضيف صف جديد لإدخال مادة جديدة في واجهة المستخدم
+// ----------------------------------------------------------------------
+function addRow(data){
+  document.getElementById('rowsArea').appendChild(rowTemplate(data));
 }
 
-function removeRow(btn) {
-  const row = btn.closest('.trow');
-  if (row) {
-    row.remove();
-    saveState();
-    compute();
+// ----------------------------------------------------------------------
+// Removes a specific course row from the UI, saves state, and triggers a recalculation
+// يحذف صف مادة معينة، يحفظ الحالة، ويعيد حساب المعدل
+// ----------------------------------------------------------------------
+function removeRow(btn){
+  btn.parentElement.parentElement.remove();
+  if(document.getElementById('rowsArea').children.length === 0) addRow();
+  saveState(); compute();
+}
+
+// ----------------------------------------------------------------------
+// Evaluates the calculated GPA and displays the student's academic standing or graduation eligibility
+// يقيم المعدل المحسوب ويظهر التقدير الأكاديمي للطالب (ممتاز، جيد جداً...) أو حالة التخرج
+// ----------------------------------------------------------------------
+function showRank(elId, gpa, type){
+  const el = document.getElementById(elId);
+  el.classList.remove('hidden');
+
+  if(gpa >= 3.50){
+    el.textContent = LANG==='ar'?"ممتاز":"Excellent";
+    return;
+  }
+  if(gpa >= 2.75){
+    el.textContent = LANG==='ar'?"جيد جداً":"Very Good";
+    return;
+  }
+  if(gpa >= 2.00){
+    el.textContent = LANG==='ar'?"جيد":"Good";
+    return;
+  }
+
+  if(type === "cum"){
+    el.textContent = LANG==='ar' ? "لا يتم تخريجه (CGPA < 2.00)" : "Not Graduated (CGPA < 2.00)";
+  } else {
+    el.textContent = LANG==='ar' ? "ضعيف (GPA < 2.00)" : "Weak (GPA < 2.00)";
   }
 }
 
-function getRankText(gpa) {
-  if (gpa >= 3.50) return { text: TEXT[LANG].est1, cls: 'excellent' };
-  if (gpa >= 2.75) return { text: TEXT[LANG].est2, cls: 'good' };
-  if (gpa >= 2.00) return { text: TEXT[LANG].est3, cls: 'warn' };
-  return { text: TEXT[LANG].est4, cls: 'bad' };
+// ----------------------------------------------------------------------
+// Checks AOU academic rules to determine if the student is under academic warning based on Cumulative GPA
+// يتحقق من القوانين الأكاديمية لجامعة AOU لتحديد ما إذا كان الطالب تحت الإنذار الأكاديمي أو مؤهل للتخرج
+// ----------------------------------------------------------------------
+function updateAdvisingBox(cgpa, completedHours){
+  const box = document.getElementById("advisingBox");
+  if(!box) return;
+
+  if(MODE !== "expected"){
+    box.classList.add("hidden");
+    return;
+  }
+  box.classList.remove("hidden");
+
+  const isSummer = (document.getElementById("isSummer")?.value === "yes");
+  const notEligibleToGraduate = (cgpa < 2.00);
+
+  const warningApplies = (!isSummer && completedHours >= 12 && cgpa < 2.00);
+
+  const sourceLine = (LANG==="ar")
+    ? `حسب دليل الطالب – الجامعة العربية المفتوحة <span style="opacity:.75;">(إرشادي فقط)</span>`
+    : `According to AOU Student Guide <span style="opacity:.75;">(Guidance Only)</span>`;
+
+  if(notEligibleToGraduate){
+    if(warningApplies){
+      box.innerHTML = (LANG==="ar")
+        ? `<div><span style="color:var(--warn); font-weight:900;">⚠️ إنذار أكاديمي</span><br><span style="color:var(--danger); font-weight:900;">❌ غير مؤهل للتخرج</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`
+        : `<div><span style="color:var(--warn); font-weight:900;">⚠️ Academic Warning</span><br><span style="color:var(--danger); font-weight:900;">❌ Not Eligible to Graduate</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`;
+    } else {
+      const note = isSummer
+        ? (LANG==="ar" ? "ملاحظة: فصل صيفي — لا يظهر سطر الإنذار." : "Note: Summer semester — warning line is hidden.")
+        : (LANG==="ar" ? "ملاحظة: الإنذار يطبق بعد إنجاز 12 ساعة أو أكثر (وبنهاية أي فصل ما عدا الصيفي)." : "Note: Warning applies after completing 12+ credit hours (except summer).");
+
+      box.innerHTML = (LANG==="ar")
+        ? `<div><span style="color:var(--danger); font-weight:900;">❌ غير مؤهل للتخرج</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small><small class="ruleNote" style="color:var(--warn)">${note}</small></div>`
+        : `<div><span style="color:var(--danger); font-weight:900;">❌ Not Eligible to Graduate</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small><small class="ruleNote" style="color:var(--warn)">${note}</small></div>`;
+    }
+  } else {
+    box.innerHTML = (LANG==="ar")
+      ? `<div><span style="color:var(--ok); font-weight:900;">✅ وضع أكاديمي طبيعي</span><br><span style="color:var(--ok); font-weight:900;">🎓 مؤهل للتخرج</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`
+      : `<div><span style="color:var(--ok); font-weight:900;">✅ Good Standing</span><br><span style="color:var(--ok); font-weight:900;">🎓 Eligible to Graduate</span><br><small style="display:block; margin-top:6px; opacity:.85;">${sourceLine}</small></div>`;
+  }
 }
 
-function compute() {
-  const rows = document.querySelectorAll('#rowsArea .trow');
-  let semPoints = 0, semHours = 0;
-  const courses = [];
-  let hasDuplicate = false;
-
-  rows.forEach((row) => {
-    const code = row.querySelector('[data-act="code"]').value.trim().toUpperCase();
-    const hrs = parseFloat(row.querySelector('[data-act="hours"]').value) || 0;
-    const scoreVal = row.querySelector('[data-act="score"]').value.trim();
-    const score = parseFloat(scoreVal);
-    const badge = row.querySelector('[data-act="status"]');
-
-    if (!isNaN(score) && score >= 0 && score <= 100) {
-      const info = getGradeInfo(score);
-      courses.push({ code, hrs, pts: info.pts, row, badge, score });
-    } else if (badge) {
-      badge.textContent = "---";
-      badge.className = "badge ok";
-    }
+// ----------------------------------------------------------------------
+// The core mathematical engine: Processes inputs, applies the retake rule, and computes final Semester & Cumulative GPA
+// المحرك الرياضي الأساسي: يعالج المدخلات، يطبق قاعدة إعادة المقررات، ويحسب المعدل الفصلي والتراكمي النهائي
+// ----------------------------------------------------------------------
+function compute(){
+  const rows = Array.from(document.getElementById('rowsArea').children);
+  const parsed = rows.map((row, idx) => {
+    validateRow(row);
+    const codeVal = row.querySelector('[data-act="code"]').value.trim().toUpperCase();
+    const scoreInp = row.querySelector('[data-act="score"]');
+    let scoreVal = parseFloat(scoreInp.value);
+    const hoursVal = parseFloat(row.querySelector('[data-act="hours"]').value);
+    if(isNaN(scoreVal) || scoreVal < 0 || scoreVal > 100) scoreVal = NaN;
+    return { idx, row, code: codeVal, score: scoreVal, hours: hoursVal };
   });
 
-  const lastSeen = {};
-  for (let i = courses.length - 1; i >= 0; i--) {
-    const c = courses[i];
-    if (c.code !== "") {
-      if (lastSeen[c.code]) {
-        c.isDup = true;
-        hasDuplicate = true;
-      } else {
-        lastSeen[c.code] = true;
-        c.isDup = false;
-      }
-    } else {
-      c.isDup = false;
-    }
-  }
+  const lastSeen = new Map();
+  parsed.forEach(p => { if(p.code) lastSeen.set(p.code, p.idx); });
 
-  courses.forEach(c => {
-    if (c.isDup) {
-      if (c.badge) {
-        c.badge.textContent = TEXT[LANG].dup;
-        c.badge.className = "badge dup";
-      }
+  let totalPts = 0, totalHrs = 0, hasDuplicate = false;
+
+  parsed.forEach(p => {
+    const statusEl = p.row.querySelector('[data-act="status"]');
+    if(isNaN(p.score) || isNaN(p.hours)){
+      statusEl.textContent = '---'; statusEl.className='badge'; return;
+    }
+
+    let isLatest = true;
+    if(p.code) {
+      isLatest = lastSeen.get(p.code) === p.idx;
+      if(!isLatest) hasDuplicate = true;
+    }
+
+    if(isLatest){
+      const gp = getGradeInfo(p.score).points;
+      totalHrs += p.hours;
+      totalPts += (gp * p.hours);
+      statusEl.textContent = (LANG==='ar' ? TEXT.ar.counted : TEXT.en.counted);
+      statusEl.className = 'badge ok';
     } else {
-      if (c.badge) {
-        c.badge.textContent = TEXT[LANG].counted;
-        c.badge.className = "badge ok";
-      }
-      semPoints += (c.pts * c.hrs);
-      semHours += c.hrs;
+      statusEl.textContent = (LANG==='ar' ? TEXT.ar.dup : TEXT.en.dup);
+      statusEl.className = 'badge dup';
     }
   });
 
   const dupBox = document.getElementById('dupBox');
-  if (dupBox) dupBox.style.display = hasDuplicate ? 'block' : 'none';
+  if(dupBox) dupBox.style.display = hasDuplicate ? 'block' : 'none';
 
-  const semGpaVal = semHours > 0 ? (semPoints / semHours) : 0;
-  const semGpaEl = document.getElementById('semGpa');
-  const semRankEl = document.getElementById('semRank');
-  
-  if (semGpaEl) semGpaEl.textContent = semGpaVal.toFixed(2);
-  
-  if (semRankEl) {
-    if (semHours > 0) {
-      const rank = getRankText(semGpaVal);
-      semRankEl.textContent = rank.text;
-      semRankEl.classList.remove('hidden');
-    } else {
-      semRankEl.classList.add('hidden');
-    }
-  }
+  const semGpa = totalHrs ? (totalPts / totalHrs) : 0;
+  document.getElementById('semGpa').textContent = semGpa.toFixed(2);
+  showRank('semRank', semGpa, "sem");
 
-  if (MODE === 'expected') {
-    const pGpa = parseFloat(document.getElementById('prevGpa').value) || 0;
-    const pHrs = parseFloat(document.getElementById('prevHours').value) || 0;
+  saveState();
 
-    const totalPts = (pGpa * pHrs) + semPoints;
-    const totalHrs = pHrs + semHours;
-    const cumGpaVal = totalHrs > 0 ? (totalPts / totalHrs) : 0;
+  if(MODE === 'expected'){
+    const pG = parseFloat(document.getElementById('prevGpa').value) || 0;
+    const pH = parseFloat(document.getElementById('prevHours').value) || 0;
 
-    const cumGpaEl = document.getElementById('cumGpa');
-    const cumRankEl = document.getElementById('cumRank');
-    
-    if (cumGpaEl) cumGpaEl.textContent = cumGpaVal.toFixed(2);
-    
-    if (cumRankEl) {
-      if (totalHrs > 0) {
-        const rank = getRankText(cumGpaVal);
-        cumRankEl.textContent = rank.text;
-        cumRankEl.classList.remove('hidden');
-      } else {
-        cumRankEl.classList.add('hidden');
-      }
-    }
+    const finalHrs = totalHrs + pH;
+    const finalPts = totalPts + (pG * pH);
+    const cumGpa = finalHrs ? (finalPts / finalHrs) : 0;
 
-    updateAdvisingBox(cumGpaVal, totalHrs);
+    document.getElementById('cumGpa').textContent = cumGpa.toFixed(2);
+    showRank('cumRank', cumGpa, "cum");
+
+    updateAdvisingBox(cumGpa, pH);
   }
 }
 
-function updateAdvisingBox(cumGpa, totalHrs) {
-  const box = document.getElementById('advisingBox');
-  if (!box) return;
+// ----------------------------------------------------------------------
+// Saves the current calculator state and user inputs to the browser's LocalStorage to prevent data loss
+// يحفظ حالة الحاسبة والمدخلات الحالية في مساحة التخزين المحلية للمتصفح لمنع فقدان البيانات عند التحديث
+// ----------------------------------------------------------------------
+function saveState(){
+  const rows = Array.from(document.getElementById('rowsArea').children).map(row => ({
+    code: row.querySelector('[data-act="code"]').value,
+    score: row.querySelector('[data-act="score"]').value,
+    hours: row.querySelector('[data-act="hours"]').value
+  }));
+  const state = {
+    mode: MODE,
+    prevGpa: document.getElementById('prevGpa').value,
+    prevHours: document.getElementById('prevHours').value,
+    isSummer: document.getElementById('isSummer')?.value || "no",
+    rows: rows,
+    lang: LANG
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
 
-  const isSummer = document.getElementById('isSummer')?.value === 'yes';
+// ----------------------------------------------------------------------
+// Retrieves previously saved state from LocalStorage and reconstructs the user interface and calculations
+// يسترجع البيانات المحفوظة سابقاً من المتصفح ويعيد بناء واجهة المستخدم والحسابات
+// ----------------------------------------------------------------------
+function restoreState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) { addRow(); return; }
+    const st = JSON.parse(raw);
 
-  if (totalHrs < 12) {
-    box.classList.add('hidden');
-    return;
-  }
-
-  box.classList.remove('hidden');
-
-  if (cumGpa < 2.00) {
-    if (isSummer) {
-      box.innerHTML = LANG === 'ar' 
-        ? "⚠️ <strong>تنبيه أكاديمي:</strong> معدلك التراكمي أقل من 2.00. الفصول الصيفية لا تُحسب فيها الإنذارات الأكاديمية رسمياً، لكن يجب عليك رفعه في الفصل القادم لتجنب الإنذار."
-        : "⚠️ <strong>Academic Notice:</strong> CGPA is below 2.00. Summer semesters do not issue official academic warnings, but you must raise your GPA next semester.";
-    } else {
-      box.innerHTML = LANG === 'ar'
-        ? "🚨 <strong>إنذار أكاديمي:</strong> معدلك التراكمي أقل من 2.00. ستحصل على إنذار أكاديمي بنهاية هذا الفصل. يرجى التركيز على إعادة المواد ذات التقدير المنخفض."
-        : "🚨 <strong>Academic Warning:</strong> CGPA is below 2.00. You will receive an academic warning at the end of this semester. Consider retaking low-grade courses.";
+    if(st.lang){
+      LANG = st.lang;
+      document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
+      document.documentElement.lang = (LANG === 'ar') ? 'ar' : 'en';
     }
+
+    if(st.mode) setMode(st.mode);
+
+    if(st.prevGpa !== undefined) document.getElementById('prevGpa').value = st.prevGpa;
+    if(st.prevHours !== undefined) document.getElementById('prevHours').value = st.prevHours;
+    if(st.isSummer !== undefined && document.getElementById('isSummer')){
+      document.getElementById('isSummer').value = st.isSummer;
+    }
+
+    document.getElementById('rowsArea').innerHTML = '';
+    if(st.rows && st.rows.length > 0) st.rows.forEach(r => addRow(r));
+    else addRow();
+
+    applyI18n();
+    updateTableHeaders();
+    compute();
+  } catch(e) {
+    addRow();
+  }
+}
+
+// ----------------------------------------------------------------------
+// Clears all input fields, resets calculations to zero, and removes saved data from LocalStorage
+// يمسح جميع حقول الإدخال، يعيد الحسابات للصفر، ويحذف البيانات المحفوظة من المتصفح
+// ----------------------------------------------------------------------
+function resetAll(){
+  if(confirm(LANG === 'ar' ? 'هل أنت متأكد من مسح جميع الحقول؟' : 'Clear all fields?')){
+    document.getElementById('rowsArea').innerHTML = '';
+    addRow();
+    document.getElementById('prevGpa').value = '';
+    document.getElementById('prevHours').value = '';
+    if(document.getElementById('isSummer')) document.getElementById('isSummer').value = 'no';
+    document.getElementById('semGpa').textContent = '0.00';
+    document.getElementById('cumGpa').textContent = '0.00';
+    localStorage.removeItem(STORAGE_KEY);
+    showToast(LANG === 'ar' ? 'تم المسح 🗑️' : 'Reset Done 🗑️');
+    compute();
+  }
+}
+
+// ----------------------------------------------------------------------
+// Displays a temporary pop-up notification (Toast message) on the screen
+// يعرض رسالة إشعار منبثقة مؤقتة للمستخدم على الشاشة
+// ----------------------------------------------------------------------
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display='none', 1500);
+}
+
+// ----------------------------------------------------------------------
+// Toggles the application appearance between Dark Mode and Light Mode
+// يبدل مظهر التطبيق بين الوضع الليلي والوضع النهاري
+// ----------------------------------------------------------------------
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+// ----------------------------------------------------------------------
+// Applies the selected theme (Dark/Light) to the HTML document and saves the preference
+// يطبق المظهر المختار (ليلي/نهاري) على الصفحة ويحفظ تفضيل المستخدم
+// ----------------------------------------------------------------------
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+}
+
+// ----------------------------------------------------------------------
+// Switches the calculator mode between Semester (Current) and Cumulative (Expected) calculations
+// يبدل وضع الحاسبة بين الحساب الفصلي (الحالي) والحساب التراكمي (المتوقع)
+// ----------------------------------------------------------------------
+function setMode(m){
+  MODE = m;
+  document.getElementById('btnCurr').classList.toggle('active', m==='current');
+  document.getElementById('btnExp').classList.toggle('active', m==='expected');
+
+  if(m==='expected'){
+    document.getElementById('prevData').classList.remove('hidden');
+    document.getElementById('cumBlock').classList.remove('hidden');
   } else {
-    box.innerHTML = LANG === 'ar'
-      ? "✅ <strong>وضع أكاديمي جيد:</strong> معدلك التراكمي 2.00 أو أعلى وتستوفي شرط المعدل للتخرج."
-      : "✅ <strong>Good Standing:</strong> Your CGPA is 2.00 or higher, meeting the minimum graduation requirement.";
+    document.getElementById('prevData').classList.add('hidden');
+    document.getElementById('cumBlock').classList.add('hidden');
   }
+  saveState(); compute();
 }
 
-function setMode(mode) {
-  MODE = mode;
-  document.getElementById('btnCurr').classList.toggle('active', mode === 'current');
-  document.getElementById('btnExp').classList.toggle('active', mode === 'expected');
-  
-  document.getElementById('prevData').classList.toggle('hidden', mode === 'current');
-  document.getElementById('cumBlock').classList.toggle('hidden', mode === 'current');
+// ----------------------------------------------------------------------
+// Updates the text of table headers and dynamic mobile labels when language changes
+// يحدث نصوص عناوين الجدول والتسميات التوضيحية الخاصة بالجوال عند تغيير اللغة
+// ----------------------------------------------------------------------
+function updateTableHeaders() {
+  document.querySelector('[data-lang="hours"]').textContent = TEXT[LANG].hours;
+  document.querySelector('[data-lang="grade"]').textContent = TEXT[LANG].grade;
+  document.querySelector('[data-lang="code"]').textContent = TEXT[LANG].code;
+  document.querySelector('[data-lang="status"]').textContent = TEXT[LANG].status;
+  document.querySelector('[data-lang="semGpa"]').textContent = TEXT[LANG].semGpa;
+  document.querySelector('[data-lang="cumGpa"]').textContent = TEXT[LANG].cumGpa;
+
+  const rows = document.querySelectorAll('.trow');
+  rows.forEach(row => {
+    row.querySelector('.cell-hours .mobile-label').textContent = TEXT[LANG].hours;
+    row.querySelector('.cell-grade .mobile-label').textContent = TEXT[LANG].grade;
+    row.querySelector('.cell-code .mobile-label').textContent = TEXT[LANG].code;
+  });
+}
+
+// ----------------------------------------------------------------------
+// Toggles the application language between English and Arabic, updating UI elements and text direction LTR/RTL
+// يبدل لغة التطبيق بين الإنجليزية والعربية، ويحدث اتجاه النصوص من اليمين لليسار والعكس
+// ----------------------------------------------------------------------
+function toggleLang(){
+  LANG = (LANG === 'en') ? 'ar' : 'en';
+  document.documentElement.dir = (LANG === 'ar') ? 'rtl' : 'ltr';
+  document.documentElement.lang = (LANG === 'ar') ? 'ar' : 'en';
+
+  applyI18n();
+  updateTableHeaders();
   
   saveState();
   compute();
 }
 
-function switchTab(tab) {
-  document.getElementById('tab1').classList.toggle('active', tab === 'calc');
-  document.getElementById('tab2').classList.toggle('active', tab === 'info');
-  document.getElementById('panelCalc').classList.toggle('hidden', tab !== 'calc');
-  document.getElementById('panelInfo').classList.toggle('hidden', tab !== 'info');
+// ----------------------------------------------------------------------
+// Switches the active view between the Calculator tab and the Information Guide tab
+// يبدل الواجهة النشطة بين تبويب الحاسبة وتبويب معلومات الإرشاد الأكاديمي
+// ----------------------------------------------------------------------
+function switchTab(t){
+  document.getElementById('panelCalc').classList.toggle('hidden', t!=='calc');
+  document.getElementById('panelInfo').classList.toggle('hidden', t!=='info');
+  document.getElementById('tab1').classList.toggle('active', t==='calc');
+  document.getElementById('tab2').classList.toggle('active', t==='info');
 }
 
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-}
-
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
-}
-
-function toggleLang() {
-  LANG = LANG === 'en' ? 'ar' : 'en';
-  document.documentElement.setAttribute('dir', LANG === 'ar' ? 'rtl' : 'ltr');
-  document.documentElement.setAttribute('lang', LANG);
-  applyI18n();
-  compute();
-}
-
-function saveState() {
-  const rows = [];
-  document.querySelectorAll('#rowsArea .trow').forEach(r => {
-    rows.push({
-      code: r.querySelector('[data-act="code"]').value,
-      score: r.querySelector('[data-act="score"]').value,
-      hours: r.querySelector('[data-act="hours"]').value
-    });
-  });
-
-  const state = {
-    lang: LANG,
-    mode: MODE,
-    theme: localStorage.getItem('theme') || 'dark',
-    isSummer: document.getElementById('isSummer')?.value || 'no',
-    prevGpa: document.getElementById('prevGpa')?.value || '',
-    prevHours: document.getElementById('prevHours')?.value || '',
-    rows
-  };
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function restoreState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) {
-    addRow(); addRow(); addRow();
-    return;
-  }
-
-  try {
-    const data = JSON.parse(saved);
-    if (data.lang) {
-      LANG = data.lang;
-      document.documentElement.setAttribute('dir', LANG === 'ar' ? 'rtl' : 'ltr');
-      document.documentElement.setAttribute('lang', LANG);
-    }
-    
-    if (data.mode) setMode(data.mode);
-    if (data.isSummer && document.getElementById('isSummer')) {
-      document.getElementById('isSummer').value = data.isSummer;
-    }
-    if (data.prevGpa && document.getElementById('prevGpa')) {
-      document.getElementById('prevGpa').value = data.prevGpa;
-    }
-    if (data.prevHours && document.getElementById('prevHours')) {
-      document.getElementById('prevHours').value = data.prevHours;
-    }
-
-    const area = document.getElementById('rowsArea');
-    if (area) area.innerHTML = '';
-
-    if (data.rows && data.rows.length > 0) {
-      data.rows.forEach(r => addRow(r));
-    } else {
-      addRow(); addRow(); addRow();
-    }
-    compute();
-  } catch (e) {
-    addRow(); addRow(); addRow();
-  }
-}
-
-function resetAll() {
-  if (confirm(LANG === 'ar' ? 'هل أنت تأكد من مسح جميع البيانات؟' : 'Are you sure you want to reset all data?')) {
-    localStorage.removeItem(STORAGE_KEY);
-    const area = document.getElementById('rowsArea');
-    if (area) area.innerHTML = '';
-    
-    if (document.getElementById('prevGpa')) document.getElementById('prevGpa').value = '';
-    if (document.getElementById('prevHours')) document.getElementById('prevHours').value = '';
-    if (document.getElementById('isSummer')) document.getElementById('isSummer').value = 'no';
-    
-    addRow(); addRow(); addRow();
-    compute();
-    
-    const toast = document.getElementById('toast');
-    if(toast) {
-      toast.textContent = LANG === 'ar' ? 'تم المسح بنجاح 🧹' : 'Reset Complete 🧹';
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 2000);
-    }
-  }
-}
+// ----------------------------------------------------------------------
+// Live Event Listeners for previous GPA/Hours to recalculate expected Cumulative GPA automatically
+// مستمعي أحداث لحظية لحقول المعدل/الساعات السابقة لإعادة حساب المعدل التراكمي المتوقع تلقائياً
+// ----------------------------------------------------------------------
+document.getElementById('prevGpa').addEventListener('input', () => { saveState(); compute(); });
+document.getElementById('prevHours').addEventListener('input', () => { saveState(); compute(); });
 </script>
 </body>
 </html>
